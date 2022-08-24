@@ -1,0 +1,9 @@
+__document/
+__backup/
+__code_archive/
+__deprecated/
+experiements/[result]/
+experiements/[old_pickle]/
+
+*.swp
+.gitignore.swp
