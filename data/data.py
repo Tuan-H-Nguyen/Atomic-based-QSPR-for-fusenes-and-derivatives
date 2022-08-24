@@ -53,9 +53,18 @@ class ReducedData:
         self.seed_list = np.random.randint(0,1e6,N)
         self.n = 0
 
-        self.cyano_path = path +"\\raw_cyano_data.csv"
-        self.nitro_path = path +"\\raw_nitro_data.csv"
-        self.pah_path = path +"\\raw_pah_data.csv"
+        cyano_path = path +"/raw_cyano_data.csv"
+        try: self.cyano_data = pd.read_csv(cyano_path).dropna()
+        except FileNotFoundError:
+            print(os.getcwd())
+            path = input("The provided path is not found. New path to data?")
+            cyano_path = path +"/raw_cyano_data.csv"
+
+        nitro_path = path +"/raw_nitro_data.csv"
+        self.nitro_data = pd.read_csv(nitro_path).dropna()
+
+        pah_path = path +"/raw_pah_data.csv"
+        self.pah_data = pd.read_csv(pah_path).dropna()
 
         assert not (subst_only and pah_only)
         self.subst_only = subst_only
@@ -64,10 +73,6 @@ class ReducedData:
     def __call__(self):
         seed = self.seed_list[self.n]
         self.n += 1
-
-        cyano_path = self.cyano_path
-        nitro_path = self.nitro_path
-        pah_path = self.pah_path
 
         def concat_subs_data(
             data,count_fn, min_samples = 25,
@@ -90,14 +95,14 @@ class ReducedData:
 
         data_list = []
         if not self.pah_only:
-            data = pd.read_csv(cyano_path).dropna()
+            data = self.cyano_data
             cn_data = concat_subs_data(
                 data,CN_count,
                 min_samples = 150 if self.subst_only else 30
                 )
             data_list.append(cn_data)
 
-            data = pd.read_csv(nitro_path).dropna()
+            data = self.nitro_data
             no2_data = concat_subs_data(
                 data,NO2_count,
                 min_samples = 150 if self.subst_only else 30
@@ -105,7 +110,7 @@ class ReducedData:
             data_list.append(no2_data)
 
         if not self.subst_only:
-            data = pd.read_csv(pah_path) 
+            data = self.pah_data
             pah_data = concat_subs_data(
                 data,S_count,
                 min_samples = 200 if self.pah_only else 100,

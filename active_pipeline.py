@@ -25,8 +25,8 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
 from pipeline import data_selector, data_splitter, model_getter, Pipeline, graph_getter, RMSD
 
 
-kernel = "subtree"
-data_type = "subst"
+kernel = input("input kernel type?")
+data_type = input("input data type?")
 repeat = 10
 
 model, hyperp = model_getter("gpr")
