@@ -26,8 +26,13 @@ from pipeline import data_selector, data_splitter, model_getter, Pipeline, graph
 
 
 kernel = input("input kernel type?")
+if not kernel: kernel = "subtree"
+
 data_type = input("input data type?")
-repeat = 10
+if not data_type: data_type = "mixed"
+
+repeat = input("number of repetitions?")
+if not repeat: repeat = 10
 
 model, hyperp = model_getter("gpr")
 if data_type == "subst":
