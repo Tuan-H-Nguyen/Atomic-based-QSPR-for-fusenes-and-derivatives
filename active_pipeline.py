@@ -25,8 +25,8 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
 from pipeline import data_selector, data_splitter, model_getter, Pipeline, graph_getter, RMSD
 
 
-kernel = input("input kernel type?")
-if not kernel: kernel = "subtree"
+kernel_str = input("input kernel type?")
+if not kernel_str: kernel_str = "subtree"
 
 data_type = input("input data type?")
 if not data_type: data_type = "mixed"
@@ -72,9 +72,9 @@ result_dict = {
     }
 
 data_generator = data_selector(data_type, "data",2020)
-if kernel == "subtree":
+if kernel_str == "subtree":
     kernel = WLSubtree
-elif kernel == "edge":
+elif kernel_str == "edge":
     kernel = WLEdge
 else:
     raise Exception("")
@@ -196,7 +196,7 @@ for i in range(repeat):
 
 ###################################################################
 
-with open("experiments\\active_learning_"+kernel+"_"+data_type+".pkl","wb") as log:
+with open("experiments\\active_learning_"+kernel_str+"_"+data_type+".pkl","wb") as log:
     pickle.dump(result_dict,log)
 
 
