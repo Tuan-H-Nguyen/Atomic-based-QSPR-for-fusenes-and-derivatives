@@ -44,7 +44,9 @@ result_dict = {
     }
 
 for kernel_str in ["subtree","edge"]:
+    print("kernel_str: ", kernel_str)
     for data_type in ["mixed","pah","subst"]:
+        print("data_type: ". data_type)
         model, hyperp = model_getter("gpr")
         if data_type == "subst":
             loops = 14
