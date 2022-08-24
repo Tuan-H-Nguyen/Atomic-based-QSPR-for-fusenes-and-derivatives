@@ -33,6 +33,7 @@ if not data_type: data_type = "mixed"
 
 repeat = input("number of repetitions?")
 if not repeat: repeat = 10
+else: repeat = int(repeat)
 
 model, hyperp = model_getter("gpr")
 if data_type == "subst":
