@@ -14,7 +14,7 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
 
 from pipeline import model_getter, graph_getter, data_splitter
 
-data = "subst"
+data = input("data name?")
 N = 10
 random_state = 2022
 

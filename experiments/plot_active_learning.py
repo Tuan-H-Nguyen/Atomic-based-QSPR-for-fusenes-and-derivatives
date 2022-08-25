@@ -11,28 +11,29 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
-data = "pah"
+data = "mixed"
 kernel_str = "subtree"
 #for data in ["mixed","pah","subst"]:
-#with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
-with open("\\".join(path) + "\\active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
+with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
+#with open("\\".join(path) + "\\active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
     result = pickle.load(handle)
-print(np.array(result["active"]))
 if data == "subst":
     start = 0
 elif data == "mixed":
-    start = 0
+    start = 7
 else:
     start = 0
 
 train_set_sizes = np.array(result["train_set_size"])
 shift = np.ones((len(train_set_sizes[start:])))
 
-error_a = np.mean(result["active"],axis= 0)
-std_a = np.std(result["active"],axis= 0)
+active_result = np.squeeze(np.array(result["active"]),axis=0)
+error_a = np.mean(active_result,axis=0)
+std_a = np.std(active_result,axis= 0)
 
-error_r = np.mean(result["random"],axis=0)
-std_r = np.std(result["random"],axis=0)
+random_result = np.squeeze(np.array(result["random"]),axis=0)
+error_r = np.mean(random_result,axis=0)
+std_r = np.std(random_result,axis=0)
 
 for i, elec_prop in enumerate(["Bandgap","EA","IP"]):
     """
@@ -53,6 +54,9 @@ for i, elec_prop in enumerate(["Bandgap","EA","IP"]):
 
         )
 
+    print(train_set_sizes[start])
+    print(train_set_sizes[0])
+    print(train_set_sizes[-1])
     plot.ax.fill_between(
         train_set_sizes[start:], 
         error_a[start:,i] - std_a[start:,i],
@@ -87,4 +91,4 @@ for i, elec_prop in enumerate(["Bandgap","EA","IP"]):
         ncol = 2
         )
 
-    plot.save_fig("experiments\\active_learning_"+data+"_"+elec_prop+".jpeg",dpi =600)
+    plot.save_fig("experiments\\active_learning_"+kernel_str+"_"+data+"_"+elec_prop+".jpeg",dpi =600)

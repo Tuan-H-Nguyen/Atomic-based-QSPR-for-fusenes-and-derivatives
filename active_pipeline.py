@@ -113,11 +113,11 @@ def active_learning_pkl(kernel_str, data_type, repeat):
 
     model, hyperp = model_getter("gpr")
     initial_split = 0.3
+    hyperp["alpha"].remove(5e-2)
     if data_type == "subst":
         loops = 31
         steps = 14
         num_iter = [2]
-        #hyperp["alpha"].remove(5e-2)
 
     elif data_type == "pah":
         loops = 30
@@ -125,10 +125,10 @@ def active_learning_pkl(kernel_str, data_type, repeat):
         num_iter = [2,3]
 
     elif data_type == "mixed":
-        loops = 32
-        steps = 7
-        num_iter = [2,3]
-        #hyperp["alpha"].remove(5e-2)
+        loops = 50
+        steps = 4
+        num_iter = [2]
+        initial_split = 0.45
 
     data_generator = data_selector(data_type, "data",2020)
     if kernel_str == "subtree":

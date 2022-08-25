@@ -24,12 +24,14 @@ for data in ["mixed","pah","subst"]:
     method_list = [
         "WL-A/RR", "WL-A/KRR",
         "WL-AB/RR", "WL-AB/KRR",
-        "WL-AD/RR","WL-AD/KRR"]
+        #"WL-AD/RR","WL-AD/KRR"
+        ]
 
     color = [
         "orange","blue",
         "crimson","cyan",
-        "gray","black"]
+        #"gray","black"
+        ]
 
     markers = [
         "^","D",
@@ -44,10 +46,7 @@ for data in ["mixed","pah","subst"]:
     for e,elec_prop in enumerate(elec_prop_list):
         for j,method in enumerate(method_list):
             if j > 3:
-                if data == "pah":
-                    n = 4
-                elif data != "pah":
-                    n = 3
+                continue
             else:
                 n = len(num_iters)
 
