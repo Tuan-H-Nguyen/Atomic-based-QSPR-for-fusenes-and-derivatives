@@ -24,10 +24,6 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
     GraphVectorizer, GraphHashVectorizer)
 from pipeline import data_selector, data_splitter, model_getter, Pipeline, graph_getter, RMSD
 
-repeat = input("number of repetitions?")
-if not repeat: repeat = 10
-else: repeat = int(repeat)
-
 def random_argmax(stds):
     max_std = np.max(stds)
     diff_std = abs(stds - max_std)
@@ -36,164 +32,149 @@ def random_argmax(stds):
     idx = random.choice(select)
     return idx[0]
 
+def learning(
+    data_generator, initial_split, 
+    kernel, num_iter, 
+    model, r_param_grid,
+    steps, loops, repeat ,
+    active = True):
 
-result_dict = {
-    "train_set_size":[],
-    "active": [],
-    "random": []
-    }
+    for i in range(repeat):
+        start = time.time()
+        pipeline = Pipeline(
+            vectorizing_method = kernel, 
+            gv_param_grid = {"num_iter":num_iter},
+            regressor = model,
+            r_param_grid = r_param_grid)
 
-for kernel_str in ["subtree","edge"]:
-    print("kernel_str: ", kernel_str)
-    for data_type in ["mixed","pah","subst"]:
-        print("data_type: ", data_type)
-        model, hyperp = model_getter("gpr")
-        if data_type == "subst":
-            loops = 14
-            steps = 31
-            initial_split = 0.30
-            num_iter = [3]
-            #hyperp["alpha"].remove(5e-2)
+        train_set, test_set = data_splitter(
+            data_generator, initial_split, 2020)
 
-        elif data_type == "pah":
-            loops = 15
-            steps = 8
-            initial_split = 0.30
-            num_iter = [2,3]
+        train_graphs, test_graphs = graph_getter(train_set,test_set)
 
-        elif data_type == "mixed":
-            loops = 16
-            steps = 13
-            initial_split = 0.30
-            num_iter = [2]
-            #hyperp["alpha"].remove(5e-2)
+        RMSD_list = []
+        train_len_list = []
 
-        data_generator = data_selector(data_type, "data",2020)
-        if kernel_str == "subtree":
-            kernel = WLSubtree
-        elif kernel_str == "edge":
-            kernel = WLEdge
-        else:
-            raise Exception("")
-        ###################################################################
+        elec_props_list = ["BG","EA","IP"]
+        train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
+        test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
 
-        for i in range(repeat):
-            start = time.time()
-            pipeline = Pipeline(
-                vectorizing_method = kernel, 
-                gv_param_grid = {"num_iter":num_iter},
-                regressor = model,
-                r_param_grid = hyperp,
-                #input_smiles = True
-                )
+        for i in tqdm(range(loops)):
+            # 1 train model
+            pipeline.fit(train_graphs,train_Y)
 
-            train_set, test_set = data_splitter(
-                data_generator, initial_split*0.7, 2020)
+            # 2 predict and calculate the standard deviation
+            test_Y_hat,Y_std = pipeline.predict(
+                test_graphs,return_std = True)
+            # for each compound, take the maximum value of STD out of 
+            # three values for three properties
+            Y_std = np.max(Y_std,axis = 1)
 
-            train_graphs, test_graphs = graph_getter(train_set,test_set)
+            #store the RMSD and training set size
+            rmsd = RMSD(test_Y_hat,test_Y)
+            RMSD_list.append(rmsd)
 
-            RMSD_list = []
-            train_len_list = []
+            train_len_list.append(len(train_graphs))
 
-            elec_props_list = ["BG","EA","IP"]
-            train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
-            test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
-
-            for i in tqdm(range(loops)):
-
-                # 1
-                # train model
-                pipeline.fit(train_graphs,train_Y)
-
-                # 2
-                # predict and calculate the standard deviation
-                test_Y_hat,Y_std = pipeline.predict(
-                    test_graphs,return_std = True)
-                # for each compound, take the maximum value of STD out of 
-                # three values for three properties
-                Y_std = np.max(Y_std,axis = 1)
-
-                #store the RMSD and training set size
-                rmsd = RMSD(test_Y_hat,test_Y)
-                RMSD_list.append(rmsd)
-
-                train_len_list.append(len(train_graphs))
-
-                for i in range(steps):
-                    # choose one data points with maximum STD
-                    # if several compounds have similar STD, they are selected at random
+            for i in range(steps):
+                # choose one data points with maximum STD
+                # if several compounds have similar STD, they are selected at random
+                if active:
                     new_id = random_argmax(Y_std)
-
-                    # 3
-                    # remove the X of the selected point from the test set
-                    new_train_graph = test_graphs.pop(new_id)
-                    # add the X of the selected point from the training set
-                    train_graphs.append(new_train_graph)
-
-                    new_train_labels = test_Y[new_id,:][np.newaxis,:]
-                    # add the Y of the selected point from the training set
-                    train_Y = np.concatenate([train_Y,new_train_labels])
-                    # remove the Y of the selected point from the test set
-                    test_Y = np.delete(test_Y,new_id,0)
-
-                    Y_std = np.delete(Y_std ,new_id , 0)
-
-            result_dict["train_set_size"] = train_len_list
-            result_dict["active"].append(RMSD_list)
-
-            print(len(train_graphs))
-            print(len(test_graphs))
-            print(time.time() - start)
-
-        ###################################################################
-
-        for i in range(repeat):
-            pipeline = Pipeline(
-                vectorizing_method = kernel, 
-                gv_param_grid = {"num_iter":num_iter},
-                regressor = model,
-                r_param_grid = hyperp,
-                #input_smiles = True
-                )
-
-            train_set, test_set = data_splitter(
-                data_generator, initial_split*0.7, 2020)
-
-            train_graphs, test_graphs = graph_getter(train_set,test_set)
-
-            RMSD_list = []
-
-            train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
-            test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
-
-            for i in tqdm(range(loops)):
-
-                pipeline.fit(train_graphs,train_Y)
-
-                test_Y_hat,Y_std = pipeline.predict(
-                    test_graphs,return_std = True)
-
-                RMSD_list.append(RMSD(test_Y_hat,test_Y))
-
-                # same as above except the data points are chosen at random
-                for i in range(steps):
+                else:
                     new_id = np.random.randint(0,len(Y_std))
 
-                    new_train_graph = test_graphs.pop(new_id)
-                    train_graphs.append(new_train_graph)
+                # 3 remove the X of the selected point from the test set
+                new_train_graph = test_graphs.pop(new_id)
+                # add the X of the selected point from the training set
+                train_graphs.append(new_train_graph)
 
-                    new_train_labels = test_Y[new_id,:][np.newaxis,:]
-                    train_Y = np.concatenate([train_Y,new_train_labels])
-                    test_Y = np.delete(test_Y,new_id,0)
+                new_train_labels = test_Y[new_id,:][np.newaxis,:]
+                # add the Y of the selected point from the training set
+                train_Y = np.concatenate([train_Y,new_train_labels])
+                # remove the Y of the selected point from the test set
+                test_Y = np.delete(test_Y,new_id,0)
 
-                    Y_std = np.delete(Y_std ,new_id , 0)
+                Y_std = np.delete(Y_std ,new_id , 0)
 
-            result_dict["random"].append(RMSD_list)
+    return train_len_list, RMSD_list
 
+def active_learning_pkl(kernel_str, data_type, repeat):
+    start = time.time()
+    result_dict = {
+        "train_set_size":[],
+        "active": [],
+        "random": []
+        }
 
-        ###################################################################
+    model, hyperp = model_getter("gpr")
+    initial_split = 0.3
+    if data_type == "subst":
+        loops = 31
+        steps = 14
+        num_iter = [2]
+        #hyperp["alpha"].remove(5e-2)
 
-        with open("experiments\\active_learning_"+kernel_str+"_"+data_type+".pkl","wb") as log:
-            pickle.dump(result_dict,log)
+    elif data_type == "pah":
+        loops = 30
+        steps = 4
+        num_iter = [2,3]
 
+    elif data_type == "mixed":
+        loops = 32
+        steps = 7
+        num_iter = [2,3]
+        #hyperp["alpha"].remove(5e-2)
 
+    data_generator = data_selector(data_type, "data",2020)
+    if kernel_str == "subtree":
+        kernel = WLSubtree
+    elif kernel_str == "edge":
+        kernel = WLEdge
+    else:
+        raise Exception("")
+    ###################################################################
+    train_len_list, RMSD_list = learning(
+        data_generator,0.7*initial_split, 
+        kernel = kernel, num_iter = num_iter,
+        model = model, r_param_grid = hyperp,
+        repeat = repeat, steps = steps, loops = loops, 
+        active = True)
+    result_dict["train_set_size"] = train_len_list
+    result_dict["active"].append(RMSD_list)
+
+    print(time.time() - start)
+
+    ###################################################################
+
+    train_set_size, RMSD_list = learning(
+        data_generator,0.7*initial_split, 
+        kernel = kernel, num_iter = num_iter,
+        model = model, r_param_grid = hyperp ,
+        repeat = repeat, steps = steps, loops = loops,
+        active = False)
+    result_dict["random"].append(RMSD_list)
+
+    ###################################################################
+
+    with open("experiments\\active_learning_"+kernel_str+"_"+data_type+".pkl","wb") as log:
+        pickle.dump(result_dict,log)
+
+repeat = input("number of repetitions?")
+if not repeat: repeat = 1
+else: repeat = int(repeat)
+
+kernel_str = input("kernel name?")
+data_type = input("data name?")
+
+if not kernel_str and not data_type:
+    print("assess active learning for all models on all dataset")
+    for kernel_str in ["subtree","edge"]:
+        print("kernel_str: ", kernel_str)
+        for data_type in ["mixed","pah","subst"]:
+            print("data_type: ", data_type)
+
+            active_learning_pkl(kernel_str,data_type,repeat)
+
+else:
+    active_learning_pkl(kernel_str,data_type,repeat)

@@ -11,15 +11,17 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
-data = "pah"
+data = "mixed"
+kernel_str = "subtree"
 #for data in ["mixed","pah","subst"]:
-with open("\\".join(path) + "\\active_learning_"+ data+".pkl","rb") as handle:
+#with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
+with open("\\".join(path) + "\\active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
     result = pickle.load(handle)
-
+print(np.array(result["active"]))
 if data == "subst":
     start = 0
 elif data == "mixed":
-    start = 2
+    start = 0
 else:
     start = 0
 
