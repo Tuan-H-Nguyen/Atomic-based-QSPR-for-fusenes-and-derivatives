@@ -125,7 +125,7 @@ def graph_getter(train_set, test_set = None, sp = True):
     return train_graphs, test_graphs
 
 class ECFPVectorizer(BaseEstimator):
-    def __init__(self,num_iter=None,len_fp = 2048):
+    def __init__(self,num_iter=None,len_fp = 1024):
         self.num_iter = num_iter
         self.len_fp = len_fp
 

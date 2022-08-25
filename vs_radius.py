@@ -14,9 +14,9 @@ from utils.criterion import RMSD
 from pipeline import model_getter, graph_getter, data_splitter, ECFPVectorizer
 
 N = 10
-data = "mixed"
+data = input("data name?")
 elec_prop_list = ["BG","EA","IP"]
-num_iters = list(range(0,8,1))
+num_iters = list(range(0,11,1))
 random_state = 2022
 
 method_list = [
@@ -70,7 +70,8 @@ for i in range(N):
 
                 result[i,e+j*len(elec_prop_list), k] += test_rmsd 
 
-with open("\\".join(path) + "\\vs_ecfp_radius_"+data+".pkl","wb") as handle:
+#with open("\\".join(path) + "\\vs_ecfp_radius_"+data+".pkl","wb") as handle:
+with open("vs_ecfp_radius_"+data+".pkl","wb") as handle:
     pickle.dump(result,handle)
 
 
