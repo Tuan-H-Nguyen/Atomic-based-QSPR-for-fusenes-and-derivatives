@@ -1,7 +1,6 @@
 #%%
 import numpy as np
 import pandas as pd
-import torch
 import glob
 
 def get_total_data(data_type, prefix_path = "", dropna = True):
