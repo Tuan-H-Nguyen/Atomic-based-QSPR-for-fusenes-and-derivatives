@@ -39,6 +39,8 @@ def learning(
     steps, loops, repeat ,
     active = True):
 
+    all_RMSD_list = []
+
     for i in range(repeat):
         start = time.time()
         pipeline = Pipeline(
@@ -97,7 +99,9 @@ def learning(
 
                 Y_std = np.delete(Y_std ,new_id , 0)
 
-    return train_len_list, RMSD_list
+        all_RMSD_list.append(RMSD_list)
+
+    return train_len_list, all_RMSD_list
 
 def active_learning_pkl(kernel_str, data_type, repeat):
     start = time.time()

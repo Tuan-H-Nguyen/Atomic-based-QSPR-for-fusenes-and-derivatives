@@ -11,7 +11,7 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
-data = "mixed"
+data = "pah"
 kernel_str = "subtree"
 #for data in ["mixed","pah","subst"]:
 #with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
