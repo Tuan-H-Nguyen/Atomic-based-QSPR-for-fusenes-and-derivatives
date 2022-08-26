@@ -117,30 +117,36 @@ def active_learning_pkl(kernel_str, data_type, repeat):
     if data_type == "subst":
         loops = 31
         num_iter = [2]
+        steps = 14
         if kernel_str == "subtree":
-            steps = 14
+            pass
         elif kernel_str == "edge":
-            initial_split = 0.64
-            steps = 7
+            #initial_split = 0.64
+            #steps = 7
+            num_iter = [1,2]
 
     elif data_type == "pah":
         loops = 30
         num_iter = [2,3]
+        steps = 4
         if kernel_str == "subtree":
-            steps = 4
+            pass
         elif kernel_str == "edge":
-            initial_split = 0.64
-            steps = 2
+            #initial_split = 0.64
+            #steps = 2
+            num_iter = [1,2,3]
 
     elif data_type == "mixed":
         loops = 50
         num_iter = [2]
+        initial_split = 0.45
+        steps = 4
         if kernel_str == "subtree":
-            initial_split = 0.45
-            steps = 4
+            pass
         elif kernel_str == "edge":
-            initial_split = 0.7
-            steps = 2
+            #initial_split = 0.7
+            #steps = 2
+            num_iter = [1,2]
 
     data_generator = data_selector(data_type, "data",2020)
     if kernel_str == "subtree":
