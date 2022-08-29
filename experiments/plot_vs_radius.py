@@ -14,7 +14,8 @@ from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 #for data in ["mixed","pah","subst"]:
 
 data = "subst"
-num_iters = list(range(0,11,1))
+#num_iters = list(range(0,11,1))
+num_iters = list(range(0,7,1))
 
 with open("\\".join(path) + "\\vs_ecfp_radius_"+ data+".pkl","rb") as handle:
     result = pickle.load(handle)

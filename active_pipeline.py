@@ -123,7 +123,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
         elif kernel_str == "edge":
             #initial_split = 0.64
             #steps = 7
-            num_iter = [1,2]
+            num_iter = [0,1,2]
 
     elif data_type == "pah":
         loops = 30
