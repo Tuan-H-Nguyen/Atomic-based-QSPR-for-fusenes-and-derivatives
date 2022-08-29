@@ -11,7 +11,7 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
-data = "subst"
+data = "mixed"
 kernel_str = "edge"
 #for data in ["mixed","pah","subst"]:
 with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
@@ -24,10 +24,12 @@ if data == "subst":
         start = 15 #108
 elif data == "mixed":
     if kernel_str == "edge":
-        start = 32 #261
+        #start = 32 #261
+        start = 0 #32
 elif data == "pah":
     if kernel_str == "edge":
-        start = 14 #396
+        #start = 14 #396
+        start = 0 #261
 
 train_set_sizes = np.array(result["train_set_size"])
 shift = np.ones((len(train_set_sizes[start:])))

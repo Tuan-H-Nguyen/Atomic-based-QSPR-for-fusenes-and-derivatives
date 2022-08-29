@@ -13,10 +13,10 @@ from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
 #for data in ["mixed","pah","subst"]:
 
-data = "mixed"
+data = "subst"
 num_iters = list(range(0,11,1))
 
-with open("\\".join(path[:-1]) + "\\vs_ecfp_radius_"+ data+".pkl","rb") as handle:
+with open("\\".join(path) + "\\vs_ecfp_radius_"+ data+".pkl","rb") as handle:
     result = pickle.load(handle)
 
 std = np.std(result,axis= 0)

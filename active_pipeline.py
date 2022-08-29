@@ -146,7 +146,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
         elif kernel_str == "edge":
             #initial_split = 0.7
             #steps = 2
-            num_iter = [1,2]
+            num_iter = [0,1,2]
 
     data_generator = data_selector(data_type, "data",2020)
     if kernel_str == "subtree":
