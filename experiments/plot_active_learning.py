@@ -11,7 +11,7 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
-data = "mixed"
+data = "subst"
 kernel_str = "edge"
 #for data in ["mixed","pah","subst"]:
 with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
@@ -21,7 +21,8 @@ with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ dat
 start = 0
 if data == "subst":
     if kernel_str == "edge":
-        start = 15 #108
+        #start = 15 #108
+        start = 0 #108
 elif data == "mixed":
     if kernel_str == "edge":
         #start = 32 #261
