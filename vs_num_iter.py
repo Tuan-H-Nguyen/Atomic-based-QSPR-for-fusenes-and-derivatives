@@ -108,7 +108,7 @@ for i in range(N):
 
                 result[i,e+j*len(elec_prop_list), num_iter] += test_rmsd 
 
-with open("\\vs_num_iter_"+data+".pkl","wb") as handle:
+with open("vs_num_iter_"+data+".pkl","wb") as handle:
     pickle.dump(result,handle)
 
 
