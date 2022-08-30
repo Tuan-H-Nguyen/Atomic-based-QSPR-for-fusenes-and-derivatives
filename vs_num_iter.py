@@ -18,7 +18,6 @@ data = input("data name?")
 N = 10
 random_state = 2022
 
-num_iters = [0,1,2,3,4]
 elec_prop_list = ["BG","EA","IP"]
 
 method_list = [
@@ -35,14 +34,17 @@ if data == "mixed":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = False, subst_only = False)
+    num_iters = [0,1,2,3]
 elif data == "pah":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = True, subst_only = False)
+    num_iters = [0,1,2,3,4]
 elif data == "subst":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = False, subst_only = True)
+    num_iters = [0,1,2,3]
 
 def vectorizing_data(
     train_graphs, test_graphs, 
@@ -103,8 +105,6 @@ for i in range(N):
 
                 test_Y_hat = regressor.predict(test_X)
                 test_rmsd = RMSD(test_Y_hat, test_Y)
-
-                print(e+j*len(elec_prop_list))
 
                 result[i,e+j*len(elec_prop_list), num_iter] += test_rmsd 
 
