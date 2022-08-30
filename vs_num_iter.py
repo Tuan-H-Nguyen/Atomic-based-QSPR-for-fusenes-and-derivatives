@@ -26,10 +26,6 @@ method_list = [
     #(WLShortestPath,"rr"),(WLShortestPath,"krr")
     ]
 
-result = np.zeros((
-    N,len(method_list)*len(elec_prop_list),
-    len(num_iters)))
-
 if data == "mixed":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
@@ -45,6 +41,10 @@ elif data == "subst":
         N = 1000, seed = random_state, path = "data",
         pah_only = False, subst_only = True)
     num_iters = [0,1,2,3]
+
+result = np.zeros((
+    N,len(method_list)*len(elec_prop_list),
+    len(num_iters)))
 
 def vectorizing_data(
     train_graphs, test_graphs, 
