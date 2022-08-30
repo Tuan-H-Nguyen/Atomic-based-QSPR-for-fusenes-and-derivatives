@@ -11,6 +11,12 @@ import pickle
 
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
+plot_lim_data = {
+    "mixed":[(0.13,0.65), (0.09,0.5),(0.08,0.39)],
+    "pah":[(0.09,0.65), (0.05,0.35),(0.05,0.30)],
+    "subst":[(0.09,0.65), (0.08,0.6),(0.05,0.60)],
+}
+
 for data in ["mixed","pah","subst"]:
     num_iters = [0,1,2,3,4]
 
@@ -39,7 +45,7 @@ for data in ["mixed","pah","subst"]:
         "o","p"]
 
     plots = [scatter_plot() for elec_prop in ["BG","EA","IP"]]
-    notation = ["(A)","(B)","(C)"]
+    notation = ["(D)","(E)","(F)"]
 
     shifted = [0.02,-0.01,-0.02,0.01,0.02,-0.02]
 
@@ -68,7 +74,8 @@ for data in ["mixed","pah","subst"]:
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
                 xticks_format = 0, x_major_tick = 1,
-                xlabel = "Number of iterations",
+                ylim = plot_lim_data[data][e],
+                xlabel = "Number of iterations" if e == 2 else None,
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
                 )
 
@@ -82,6 +89,16 @@ for data in ["mixed","pah","subst"]:
 
     for e,elec_prop in enumerate(elec_prop_list):
         if e == 1:
+            plots[e].add_plot(
+                [],[],scatter_color = "gray", scatter_marker = "o",
+                label = "ECFP/RR"
+                )
+            plots[e].add_plot(
+                [],[],scatter_color = "black", scatter_marker = "p",
+                label = "ECFP/GPR",
+                #xlabel = "Number of iterations",
+                ylabel = "RMSD for {} (eV)".format(elec_prop),
+                )
             plots[e].ax.legend(
                 loc = "center left",
                 bbox_to_anchor=(1.04,0.5), borderaxespad=0,

@@ -23,14 +23,15 @@ def merge_image2(file1, file2):
     result.paste(im=image2, box=(0, height1))
     return result
 
-def side_merge_image2(file1, file2):
+def side_merge_image2(image1, image2,open_img=True):
     #Merge two images into one, displayed side by side
     #:param file1: path to first image file
     #:param file2: path to second image file
     #:return: the merged Image object
  
-    image1 = Image.open(file1)
-    image2 = Image.open(file2)
+    if open_img == True:
+        image1 = Image.open(image1)
+        image2 = Image.open(image2)
 
     (width1, height1) = image1.size
     (width2, height2) = image2.size
@@ -62,11 +63,18 @@ def merge_image3(file1, file2,file3):
 	return result
 	
 for data_type in ["mixed","pah","subst"]:
-    merge_image3(
-        *[path+"\\vs_num_iter_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]]).save(
-            path+"\\vs_num_iter_"+data_type+".jpeg")
+    foo1 = merge_image3(
+        *[path+"\\vs_num_iter_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]])
 
+    foo2 = merge_image3(
+        *[path+"\\vs_ecfp_radius_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]])
+
+    side_merge_image2(foo2,foo1,open_img=False).save(
+            path+"\\vs__"+data_type+".jpeg")
+
+"""
 for data_type in ["mixed","pah","subst"]:
     merge_image3(
         *[path+"\\vs_train_sizes_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]]).save(
             path+"\\vs_train_sizes_"+data_type+".jpeg")
+"""
