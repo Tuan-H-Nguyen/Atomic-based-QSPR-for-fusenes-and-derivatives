@@ -80,7 +80,7 @@ for i in range(N):
     for j, method in enumerate(method_list):
 
         if data == "mixed":
-            num_iters = [0,1,2,3,4]
+            num_iters = [0,1,2,3,4,5]
             if j == 3: num_iters = [0,1,2] # verified w single calculation
             if j == 1: num_iters = [0,1,2,3]
         elif data == "pah":
