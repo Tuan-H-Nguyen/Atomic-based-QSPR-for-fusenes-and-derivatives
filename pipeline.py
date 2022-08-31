@@ -95,7 +95,7 @@ def model_getter(model,kernel = None,grid_search = False,name = None):
                 "kernel": [kernel2] ,
                 "alpha" : [
                     5e-3,
-                    #5e-2
+                    5e-2
                     ],
                 "_max_iter":[20000]
                 }
