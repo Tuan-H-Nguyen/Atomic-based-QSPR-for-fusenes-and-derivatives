@@ -36,7 +36,7 @@ parser.add_argument(
     help = "The number of iteration of the WL labelling algorithm. Int < 10, default to 2.",
     type = int, default = 2, choices = range(0,20))
 parser.add_argument(
-    "-dt","--train_split",
+    "-t","--train_split",
     help = "ratio of training set/total data set. float < 1.0, default to 0.7.",
     default = 0.7, type = float)
 parser.add_argument(

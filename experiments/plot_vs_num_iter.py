@@ -12,14 +12,12 @@ import pickle
 from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
 plot_lim_data = {
-    "mixed":[(0.13,0.65), (0.09,0.5),(0.08,0.39)],
-    "pah":[(0.09,0.65), (0.05,0.35),(0.05,0.30)],
+    "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
+    "pah":[(0.08,0.65), (0.03,0.35),(0.03,0.30)],
     "subst":[(0.09,0.65), (0.08,0.6),(0.05,0.60)],
 }
 
 for data in ["mixed","pah","subst"]:
-    num_iters = [0,1,2,3,4]
-
     with open("\\".join(path) + "\\vs_num_iter_"+ data+".pkl","rb") as handle:
         result = pickle.load(handle)
 
@@ -28,8 +26,8 @@ for data in ["mixed","pah","subst"]:
 
     elec_prop_list = ["BG","EA","IP"]
     method_list = [
-        "WL-A/RR", "WL-A/KRR",
-        "WL-AB/RR", "WL-AB/KRR",
+        "WL-A/RR", "WL-A/GPR",
+        "WL-AB/RR", "WL-AB/GPR",
         #"WL-AD/RR","WL-AD/KRR"
         ]
 
@@ -49,8 +47,17 @@ for data in ["mixed","pah","subst"]:
 
     shifted = [0.02,-0.01,-0.02,0.01,0.02,-0.02]
 
-    for e,elec_prop in enumerate(elec_prop_list):
-        for j,method in enumerate(method_list):
+    for j,method in enumerate(method_list):
+        if data == "mixed":
+            num_iters = [0,1,2,3]
+            if method == "WL-AB/GPR" : num_iters = [0,1,2]
+        elif data == "pah":
+            num_iters = [0,1,2,3,4]
+            if method == "WL-AB/GPR" : num_iters = [0,1,2]
+            if method == "WL-A/GPR" : num_iters = [0,1,2,3]
+        elif data == "subst":
+            num_iters = [0,1,2,3]
+        for e,elec_prop in enumerate(elec_prop_list):
             if j > 3:
                 continue
             else:

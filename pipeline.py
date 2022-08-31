@@ -89,11 +89,14 @@ def model_getter(model,kernel = None,grid_search = False,name = None):
                 }
 
     elif model =="gpr":
-        #kernel1 = DotProduct(sigma_0 = 1,sigma_0_bounds = (1e-10,1e5)) * ConstantKernel(1.0)
+        kernel1 = DotProduct(sigma_0 = 1,sigma_0_bounds = (1e-10,1e5)) * ConstantKernel(1.0)
         kernel2 = RBF() * ConstantKernel(1.0)
         regressor,param_grid = ModGaussianProcessRegressor, {
                 "kernel": [kernel2] ,
-                "alpha" : [5e-3,5e-2],
+                "alpha" : [
+                    5e-3,
+                    #5e-2
+                    ],
                 "_max_iter":[20000]
                 }
     else:
