@@ -26,21 +26,19 @@ method_list = [
     #(WLShortestPath,"rr"),(WLShortestPath,"krr")
     ]
 
+num_iters = [0,1,2,3,4,5]
 if data == "mixed":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = False, subst_only = False)
-    num_iters = [0,1,2,3]
 elif data == "pah":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = True, subst_only = False)
-    num_iters = [0,1,2,3,4]
 elif data == "subst":
     data_generator = ReducedData(
         N = 1000, seed = random_state, path = "data",
         pah_only = False, subst_only = True)
-    num_iters = [0,1,2,3]
 
 result = np.zeros((
     N,len(method_list)*len(elec_prop_list),
