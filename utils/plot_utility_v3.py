@@ -49,7 +49,7 @@ def plot_histogram(
         fig.savefig(save_path,dpi=600,bbox_inches='tight')
 
 class scatter_plot:
-    def __init__(self,double_ax = False,mini_plot = False,mini_plot_rect = None,figsize = None):
+    def __init__(self,double_ax = False,figsize = None):
         if figsize :
             assert isinstance(figsize,tuple)
             self.fig, self.ax = plt.subplots(
@@ -59,14 +59,12 @@ class scatter_plot:
             self.fig, self.ax = plt.subplots(nrows=1, ncols=1)
         if double_ax:
             self.second_ax = self.ax.twinx()
-        if mini_plot:
-            self.ax2 = self.fig.add_axes(mini_plot_rect)
         self.lines = []
         self.scatters = []
 
     def add_plot(
         self,
-        x,y, ax = None,
+        x,y,
         xlabel=None,
         ylabel=None,
         second_ax = False,
@@ -89,21 +87,18 @@ class scatter_plot:
         label =None,
         line_label = None,
         equal_aspect = False,
-        tick_color = None,
-        line_width = 1.5
+        tick_color = None
         ):
-        if second_ax == True:
-            ax = self.second_ax
-        elif ax != None:
-            pass
-        else:
+        if second_ax == False:
             ax = self.ax
+        else:
+            ax = self.second_ax
         if scatter:
             scat = ax.scatter(x,y,c = scatter_color, label = label,s=scatter_size, marker = scatter_marker)
             self.scatters.append(scat)
         if plot_line:
             if weight == None:
-                line, = ax.plot(x,y,linewidth=line_width, c=line_color, linestyle=line_type,label=line_label)
+                line, = ax.plot(x,y,linewidth=1.5, c=line_color, linestyle=line_type,label=line_label)
                 self.lines.append(line)
             else:
                 assert isinstance(weight,tuple)
@@ -113,7 +108,7 @@ class scatter_plot:
                 else:
                     assert isinstance(i,tuple)
                     i = np.linspace(i[0],i[1],100)
-                line, = ax.plot(i,wb+w*i,linewidth=line_width, c=line_color, linestyle=line_type, label = line_label)
+                line, = ax.plot(i,wb+w*i,linewidth=1.5, c=line_color, linestyle=line_type, label = line_label)
                 self.lines.append(line)
         if equal_aspect:
             self.fig.gca().set_aspect('equal',adjustable='box')
@@ -131,8 +126,12 @@ class scatter_plot:
         try:
             labelx = ax.get_xticks().tolist()
             ax.xaxis.set_ticklabels(labelx,**tick)
-            xticks_format = '%.f' if xticks_format==0 else '%.'+str(xticks_format)+'f'
-            ax.xaxis.set_major_formatter(FormatStrFormatter(xticks_format))
+            
+            if xticks_format == -1:
+                ax.xaxis.set_major_formatter(plt.NullFormatter())
+            else:
+                xticks_format = '%.'+str(xticks_format)+'f'
+                ax.xaxis.set_major_formatter(FormatStrFormatter(xticks_format))
         except AttributeError:
             pass
             #
@@ -153,8 +152,24 @@ class scatter_plot:
         if tick_color:
             ax.tick_params(axis='y',labelcolor=tick_color)
         
-    def add_text(self,x,y,text):
-        self.ax.text(x,y,text,**annotate) 
+    def add_text(self,x,y,text,ha = "right",va = "bottom"):
+        self.ax.text(
+            x,y,
+            text,
+            horizontalalignment=ha,
+            verticalalignment=va,
+            transform = self.ax.transAxes,
+            **annotate) 
+    
+    def add_text2(self,xr,yr,text):
+        self.ax.text(
+            xr,yr,
+            text,
+            horizontalalignment='center',
+            verticalalignment='center',
+            transform = self.ax.transAxes,
+            **annotate) 
+
 
     def add_legend(self,loc = None,ncols=None):
         if loc == "None":
@@ -169,6 +184,7 @@ class scatter_plot:
                 )
         elif loc == 'left outside':
             self.ax.legend(
+                prop = font_legend,
                 loc = "center left",
                 bbox_to_anchor=(1.04,0.5), borderaxespad=0)
 
@@ -180,10 +196,3 @@ class scatter_plot:
     def clear(self):
         self.fig.clf()
         del self.fig
-
-    def add_subplot_axes(self,x,y,**kwargs): # matplotlib 2.0+
-        self.add_plot(x,y,ax = self.ax2,**kwargs)
-
-
-
-

@@ -69,17 +69,11 @@ def merge_image3(file1, file2,file3):
 	
 for data_type in ["mixed","pah","subst"]:
     foo1 = merge_image3(
-        *[path+"\\vs_num_iter_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]])
+        *[path+"\\active_learning_subtree_"+data_type+"_"+elec_prop+".jpeg" for elec_prop in ["Bandgap","EA","IP"]])
 
     foo2 = merge_image3(
-        *[path+"\\vs_ecfp_radius_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]])
+        *[path+"\\active_learning_edge_"+data_type+"_"+elec_prop+".jpeg" for elec_prop in ["Bandgap","EA","IP"]])
 
-    side_merge_image2(foo2,foo1,open_img=False,align ="bottom").save(
-            path+"\\vs__"+data_type+".jpeg")
+    side_merge_image2(foo1,foo2,open_img=False,align ="bottom").save(
+            path+"\\active_learning_"+data_type+".jpeg")
 
-"""
-for data_type in ["mixed","pah","subst"]:
-    merge_image3(
-        *[path+"\\vs_train_sizes_"+data_type+"_" +elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]]).save(
-            path+"\\vs_train_sizes_"+data_type+".jpeg")
-"""

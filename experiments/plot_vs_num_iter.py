@@ -14,7 +14,7 @@ from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 plot_lim_data = {
     "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
     "pah":[(0.08,0.65), (0.03,0.35),(0.03,0.30)],
-    "subst":[(0.09,0.65), (0.08,0.6),(0.05,0.60)],
+    "subst":[(0.09,0.65), (0.05,0.6),(0.05,0.60)],
 }
 
 for data in ["mixed","pah","subst"]:
@@ -49,7 +49,7 @@ for data in ["mixed","pah","subst"]:
 
     for j,method in enumerate(method_list):
         if data == "mixed":
-            num_iters = [0,1,2,3,4]
+            num_iters = [0,1,2,3,4,5]
             if method == "WL-AB/GPR" : num_iters = [0,1,2]
             if method == "WL-A/GPR" : num_iters = [0,1,2,3]
         elif data == "pah":
@@ -57,7 +57,9 @@ for data in ["mixed","pah","subst"]:
             if method == "WL-AB/GPR" : num_iters = [0,1,2]
             if method == "WL-A/GPR" : num_iters = [0,1,2,3]
         elif data == "subst":
-            num_iters = [0,1,2,3]
+            num_iters = [0,1,2,3,4,5]
+            if method == "WL-AB/GPR" : num_iters = [0,1,2]
+            if method == "WL-A/GPR" : num_iters = [0,1,2,3]
         for e,elec_prop in enumerate(elec_prop_list):
             if j > 3:
                 continue
@@ -81,10 +83,11 @@ for data in ["mixed","pah","subst"]:
                 plot_line = True, label = method,
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
-                xticks_format = 0, x_major_tick = 1,
+                xticks_format = 0 if e == 2 else -1,
+                x_major_tick = 1,
                 ylim = plot_lim_data[data][e],
                 xlabel = "Number of iterations" if e == 2 else None,
-                ylabel = "RMSD for {} (eV)".format(elec_prop),
+                #ylabel = "RMSD for {} (eV)".format(elec_prop),
                 )
 
             plots[e].ax.text(
@@ -96,7 +99,8 @@ for data in ["mixed","pah","subst"]:
                 )
 
     for e,elec_prop in enumerate(elec_prop_list):
-        if e == 1:
+        if e == 0:
+            """
             plots[e].add_plot(
                 [],[],scatter_color = "gray", scatter_marker = "o",
                 label = "ECFP/RR"
@@ -106,11 +110,15 @@ for data in ["mixed","pah","subst"]:
                 label = "ECFP/GPR",
                 #xlabel = "Number of iterations",
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
+                xticks_format = 0, x_major_tick = 1,
                 )
+            """
             plots[e].ax.legend(
-                loc = "center left",
-                bbox_to_anchor=(1.04,0.5), borderaxespad=0,
                 prop = font_legend,
+                loc="lower left",
+                bbox_to_anchor=(0,1.02,1,0.2),
+                mode="expand", borderaxespad=0,
+                ncol = 2
                 )
         plots[e].save_fig("\\".join(path)+"\\[result]\\vs_num_iter_"+data+"_"+elec_prop+".jpeg")
 

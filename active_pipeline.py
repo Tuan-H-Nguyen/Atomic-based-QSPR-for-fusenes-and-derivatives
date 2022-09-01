@@ -128,7 +128,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
 
     elif data_type == "pah":
         loops = 30
-        num_iter = [2,3]
+        num_iter = [3,4,5]
         steps = 4
         if kernel_str == "subtree":
             pass

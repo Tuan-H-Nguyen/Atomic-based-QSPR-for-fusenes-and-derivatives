@@ -30,7 +30,7 @@ for data in ["mixed","pah","subst"]:
 
     elec_prop_list = ["BG","EA","IP"]
     method_list = [
-        "RR", "GPR"
+        "ECFP/RR", "ECFP/GPR"
         #"WL-AD/RR","WL-AD/KRR"
         ]
 
@@ -52,7 +52,7 @@ for data in ["mixed","pah","subst"]:
     plot_lim_data = {
         "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
         "pah":[(0.08,0.65), (0.03,0.35),(0.03,0.30)],
-        "subst":[(0.09,0.65), (0.08,0.6),(0.05,0.60)],
+        "subst":[(0.09,0.65), (0.05,0.6),(0.05,0.60)],
     }
 
     for e,elec_prop in enumerate(elec_prop_list):
@@ -79,7 +79,8 @@ for data in ["mixed","pah","subst"]:
                 plot_line = True, label = method,
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
-                xticks_format = 0, x_major_tick = 1,
+                xticks_format = 0  if e == 2 else -1,
+                x_major_tick = 1,
                 xlabel = "Fingerprint radius" if e == 2 else None,
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
                 ylim = plot_lim_data[data][e]
@@ -94,6 +95,14 @@ for data in ["mixed","pah","subst"]:
                 )
 
     for e,elec_prop in enumerate(elec_prop_list):
+        if e == 0:
+            plots[e].ax.legend(
+                prop = font_legend,
+                loc="lower left",
+                bbox_to_anchor=(0,1.02,1,0.2),
+                mode="expand", borderaxespad=0,
+                ncol = 2
+                )
         plots[e].save_fig("\\".join(path)+"\\[result]\\vs_ecfp_radius_"+data+"_"+elec_prop+".jpeg")
 
 
