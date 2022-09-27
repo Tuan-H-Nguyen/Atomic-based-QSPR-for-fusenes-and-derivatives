@@ -54,8 +54,9 @@ data_generator = ReducedData(
 elec_prop = ["BG"]
 data = data_generator()
 
+all_smiles = list(data.loc[:,"smiles"])
 all_graphs = []
-for smiles in data.loc[:,"smiles"]:
+for smiles in all_smiles:
     all_graphs.append(
         smiles2graph(smiles))
 all_Y = np.array(data.loc[:,elec_prop])
@@ -85,4 +86,7 @@ for i in tqdm(range(len(data))):
     LOO_error.append(rmsd)
 
 with open("LOO_error.pkl","wb") as handle:
-    pickle.dump(LOO_error, handle)
+    pickle.dump({
+        "smiles_list":smiles_list,
+        "LOO_error":LOO_error
+        }, handle)
