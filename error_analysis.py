@@ -26,8 +26,6 @@ from utils.criterion import RMSD
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
 
-from utils.plot_utility_v3 import scatter_plot, font_legend
-
 from pipeline import data_splitter, graph_getter, Pipeline, RMSD, model_getter
 
 random_state = 2020
