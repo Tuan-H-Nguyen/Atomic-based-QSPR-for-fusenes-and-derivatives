@@ -82,11 +82,12 @@ for i in tqdm(range(len(data))):
     test_Y_hat = model.predict(test_X)
 
     rmsd = np.sqrt(
-        (test_Y_hat[0][0] - all_Y[i])**2)
+        (test_Y_hat[0][0] - all_Y[i])**2
+        )
     LOO_error.append(rmsd)
 
 with open("LOO_error.pkl","wb") as handle:
     pickle.dump({
-        "smiles_list":smiles_list,
+        "smiles_list":all_smiles,
         "LOO_error":LOO_error
         }, handle)

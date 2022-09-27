@@ -81,7 +81,7 @@ for d,data in enumerate(["mixed","pah","subst"]):
                 line_color = color[j],
                 xticks_format = 0 ,#  if e == 2 else -1,
                 x_major_tick = 1,
-                xlabel = "Fingerprint radius" if e == 2 else None,
+                xlabel = "Fingerprint radius" if d == 2 else None,
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
                 ylim = plot_lim_data[data][e]
                 )
