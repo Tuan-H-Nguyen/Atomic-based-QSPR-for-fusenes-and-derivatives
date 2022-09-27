@@ -56,6 +56,8 @@ def smiles2graph(
         else:
             return node_feat, adj_list,edges_list, edges_feat
 
+    else: raise Exception("Expect list or str, has {}".format(type(smiles)))
+
 
 if __name__ == "__main__":
     smiles = "c1cc2c(cc1)c1c(ccc(c1)C#N)c1c2cccc1"

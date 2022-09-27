@@ -10,6 +10,7 @@ import pickle
 
 from data.data import ReducedData, stratified_sampling
 from utils.criterion import RMSD
+from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 
 from pipeline import model_getter, graph_getter, data_splitter, ECFPVectorizer
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
@@ -54,10 +55,11 @@ def indexing(l):
             result.append(i)
     return result
 
+unique_vs_total = [[],[],[]]
 for num_iter in range(0,8,1):
     print("num_iter = ",num_iter)
     ecfp_vectorizer = ECFPVectorizer(
-        num_iter = num_iter, len_fp = 1129)
+        num_iter = num_iter, len_fp = 1024)
 
     wla_vectorizer = GraphVectorizer(
         label_method = WLSubtree, 
@@ -70,15 +72,28 @@ for num_iter in range(0,8,1):
     wla = wla_vectorizer.fit(graphs)
     wla = wla_vectorizer.transform(graphs)
     unique_wla = len(list(set([hash_(w) for w in wla])))
-    print(unique_wla/len(data))
+    unique_vs_total[0].append(unique_wla/len(data))
 
     wlab = wlab_vectorizer.fit(graphs)
     wlab = wlab_vectorizer.transform(graphs)
     unique_wlab = len(list(set([hash_(w) for w in wlab])))
-    print(unique_wlab/len(data))
+    unique_vs_total[1].append(unique_wlab/len(data))
 
     ecfp = ecfp_vectorizer.transform(smiles)
     unique_ecfp = len(list(set([hash_(e) for e in ecfp])))
-    print(unique_ecfp/len(data))
+    unique_vs_total[2].append(unique_ecfp/len(data))
 
+plot = scatter_plot()
+for i,method in enumerate(["WL-A","WL-AB","ECFP"]):
+    plot.add_plot(
+        range(0,8,1),
+        unique_vs_total[i],
+        plot_line = True, 
+        label = method,
+        xlabel = "Number of iterations or Radius",
+        ylabel = "# unique vectors/# compounds",
+        xticks_format = 0
+        )
 
+plot.ax.legend(prop = font_legend)
+plot.save_fig("ecfp\\count.jpeg",dpi=600)

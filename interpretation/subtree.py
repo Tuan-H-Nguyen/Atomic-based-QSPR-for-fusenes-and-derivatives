@@ -3,6 +3,7 @@ path = os.path.dirname(os.path.realpath(__file__)).split("\\")
 print("\\".join(path[:-1]))
 sys.path.append("\\".join(path[:-1]))
 from copy import deepcopy
+import pickle
 
 import time
 import numpy as np
@@ -24,66 +25,65 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
 
 from utils.plot_utility_v3 import scatter_plot, font_legend
 
-from pipeline import data_splitter, graph_getter, vectorizing_data, model_getter
+from pipeline import data_splitter, graph_getter, Pipeline, RMSD
 
-random_state = 2020
-num_iter = 4
+num_iter = 5
 data_type = "subst"
 
-if data_type == "mixed":
-    data_generator = ReducedData(
-        N = 100, seed = random_state, path = "data",
-        pah_only = False, subst_only = False)
-elif data_type == "pah":
-    data_generator = ReducedData(
-        N = 100, seed = random_state, path = "data",
-        pah_only = True, subst_only = False)
-elif data_type == "subst":
-    data_generator = ReducedData(
-        N = 100, seed = random_state, path = "data",
-        pah_only = False, subst_only = True)
+result_dict = {}
+for random_state in range(0,2001,200):
 
-train_set,test_set = data_splitter(
-    data_generator, train_split = 0.7, random_state = random_state)
+    if data_type == "pah":
+        data_generator = ReducedData(
+            N = 100, seed = random_state, path = "data",
+            pah_only = True, subst_only = False)
+    elif data_type == "subst":
+        data_generator = ReducedData(
+            N = 100, seed = random_state, path = "data",
+            pah_only = False, subst_only = True)
+    else: raise Exception("")
 
-train_graphs,test_graphs = graph_getter(train_set,test_set)
+    train_set,test_set = data_splitter(
+        data_generator, train_split = 0.7, random_state = random_state)
 
-graph_vectorizer = GraphVectorizer( 
-    graphs = train_graphs + test_graphs,
-    label_method = WLSubtree, num_iter = num_iter)
+    train_set.loc[:,"smiles"] =  train_set.loc[:,"smiles"].apply(
+        lambda x: Chem.MolToSmiles(Chem.MolFromSmiles(x)))
+    test_set.loc[:,"smiles"] =  test_set.loc[:,"smiles"].apply(
+        lambda x: Chem.MolToSmiles(Chem.MolFromSmiles(x)))
 
-train_X = graph_vectorizer.bulk_vectorize(train_graphs)
-test_X = graph_vectorizer.bulk_vectorize(test_graphs)
+    train_graphs,test_graphs = graph_getter(train_set,test_set)
 
-for elec_prop in ["BG","EA","IP"]:
-    train_Y = np.array(list(train_set.loc[:,elec_prop]))
+    model = Pipeline(
+        vectorizing_method = WLSubtree, 
+        gv_param_grid = {"num_iter":[num_iter]},
+        regressor = Ridge,
+        r_param_grid = {"alpha":[1e-2,0.1]}
+        )
+
+    ### a for loop was initially here ###
+    elec_prop = ["BG"]
+
+    train_Y = np.array(train_set.loc[:,elec_prop])
     test_Y = np.array(test_set.loc[:,elec_prop])
 
-    regressor = model_getter("rr")
+    model.fit(train_graphs,train_Y)
 
-    regressor.fit(train_X,train_Y)
+    re_coef = model.regressors[0].coef_ # 0 for BG
 
-    re_coef = regressor.best_estimator_.coef_
-    max_contribute = np.max(re_coef)
-
-    plot = scatter_plot()
-
-    plot.ax.hist(re_coef, 
-        bins = [-i*0.001 for i in range(0,70)][::-1]+[i*0.001 for i in range(1,70)]
+    Y_test_hat = model.predict(test_graphs).reshape(-1)
+    test_rmsd =  np.sqrt(
+        (Y_test_hat - np.array(list(test_set.loc[:,"BG"])).reshape(-1))**2
         )
-    plot.add_plot(
-        [],[],
-        xlabel = "Associated RR coefficients' values", 
-        ylabel = "Number of labels",
-        xticks_format = 2, yticks_format = 0)
-        
-    plot.save_fig("\\".join(path) + "\\" + data_type + "\\subtree_rr_coef_hist_{}.jpeg".format(elec_prop),dpi=600)
 
     explain_dict = dict(zip(
-        graph_vectorizer.unique_labels,
+        model.graph_vectorizers[0].unique_labels, #0 to get model for BG
         re_coef.tolist()))
 
     test_smiles = list(test_set.loc[:,"smiles"])
+
+    contributions_list = []
+    unknown_label = 0
+
     for sample_no,sample in enumerate(test_smiles):
         #if sample_no > 100: break
 
@@ -95,42 +95,33 @@ for elec_prop in ["BG","EA","IP"]:
             wl_labelling.relabelling_nodes()
 
         contributions = np.zeros(len(node_feat))
+        """
+        The list of atoms' labels are according to the order of node_feat, which is generated
+        according to the order of mol.GetAtoms()
+        Therefore, the contributions list is the contribution of atoms (inferred via the linear 
+        regression coef) in the above order.
+        """
         for label_set in wl_labelling.atom_labels:
-            contributions += np.array(
-                [explain_dict[label] for label in label_set])
+            for i,label in enumerate(label_set):
+                try:
+                    """
+                    contributions += np.array(
+                        [explain_dict[label] for label in label_set])
+                    """
+                    contributions[i] += explain_dict[label]
+                except KeyError:
+                    unknown_label += 1
+                    contributions[i] += 0
 
         contributions = list(contributions)
-        min_contr = min(contributions)
-        max_contr = max(contributions)
+        contributions_list.append(contributions)
 
-        hit_ats = []
-        atom_cols = {}
-        for i,con in enumerate(contributions):
-            if con <= 0:
-                hit_ats.append(i)
-                atom_cols[i] = (1.0,1.0-con/min_contr,1.0-con/min_contr)
-            if con >= 0:
-                hit_ats.append(i)
-                atom_cols[i] = (1.0-con/max_contr,1.0-con/max_contr,1.0)
-                
-        mol = Chem.MolFromSmiles(sample)
+    result_dict.update({random_state:{
+        "contributions_list":contributions_list,
+        "test_Y":test_Y,
+        "test_rmsd":test_rmsd,
+        "test_smiles":test_smiles
+        }})
 
-        d = rdMolDraw2D.MolDraw2DCairo(500, 500) # or MolDraw2DCairo to get PNGs
-        rdMolDraw2D.PrepareAndDrawMolecule(
-            d, mol, 
-            highlightAtoms=hit_ats,
-            highlightAtomColors = atom_cols
-            )
-
-        d.FinishDrawing()
-
-        d.WriteDrawingText("\\".join(path) + "\\" + data_type + "\\" + elec_prop +"\\test_{}.png".format(sample_no))
-
-
-
-
-
-
-
-
-
+with open("\\".join(path) + "\\"+data_type+"\\result.pkl","wb") as handle:
+    pickle.dump(result_dict, handle)

@@ -17,7 +17,7 @@ from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 #num_iters = list(range(0,11,1))
 
 
-for data in ["mixed","pah","subst"]:
+for d,data in enumerate(["mixed","pah","subst"]):
 
     if data == "subst":num_iters = list(range(0,7,1))
     else: num_iters = list(range(0,11,1))
@@ -79,7 +79,7 @@ for data in ["mixed","pah","subst"]:
                 plot_line = True, label = method,
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
-                xticks_format = 0  if e == 2 else -1,
+                xticks_format = 0 ,#  if e == 2 else -1,
                 x_major_tick = 1,
                 xlabel = "Fingerprint radius" if e == 2 else None,
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
@@ -88,14 +88,14 @@ for data in ["mixed","pah","subst"]:
 
             plots[e].ax.text(
                 0.95,0.95,
-                notation[e],
+                notation[d],
                 ha='center', va='center', 
                 transform=plots[e].ax.transAxes,
                 **annotate
                 )
 
     for e,elec_prop in enumerate(elec_prop_list):
-        if e == 0:
+        if e == 0 and d == 0:
             plots[e].ax.legend(
                 prop = font_legend,
                 loc="lower left",

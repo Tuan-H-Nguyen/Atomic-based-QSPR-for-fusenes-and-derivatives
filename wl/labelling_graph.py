@@ -142,11 +142,12 @@ class GraphVectorizer(BaseEstimator):
         self.smiles = smiles
 
     def convert_smiles(self,X):
-        X = smiles2graph(X,sp=True)
+        X = smiles2graph(X,sp=False)
         return X
 
     def fit(self, X,Y=None):
-        if self.smiles: X=self.convert_smiles(X)
+        if self.smiles: 
+            X = self.convert_smiles(X)
 
         for graph in X:
             counter = self.label_method(*graph).to_counter(self.num_iter)

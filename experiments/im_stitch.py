@@ -67,13 +67,10 @@ def merge_image3(file1, file2,file3):
 	result.paste(im=image3, box=(0, height1 + height2))
 	return result
 	
-for data_type in ["mixed","pah","subst"]:
+for kernel_str in ["subtree","edge"]:
     foo1 = merge_image3(
-        *[path+"\\active_learning_subtree_"+data_type+"_"+elec_prop+".jpeg" for elec_prop in ["Bandgap","EA","IP"]])
+        *["experiments\\active_learning_"+kernel_str+"_"+elec_prop+".jpeg" for elec_prop in ["BG","EA","IP"]])
 
-    foo2 = merge_image3(
-        *[path+"\\active_learning_edge_"+data_type+"_"+elec_prop+".jpeg" for elec_prop in ["Bandgap","EA","IP"]])
-
-    side_merge_image2(foo1,foo2,open_img=False,align ="bottom").save(
-            path+"\\active_learning_"+data_type+".jpeg")
+    foo1.save(
+            path+"\\active_learning_"+kernel_str+".jpeg")
 

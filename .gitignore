@@ -4,6 +4,9 @@ __code_archive/
 __deprecated/
 experiements/[result]/
 experiements/[old_pickle]/
+interpretation/pah
+interpretation/subst
 
 *.swp
 .gitignore.swp
+*.png

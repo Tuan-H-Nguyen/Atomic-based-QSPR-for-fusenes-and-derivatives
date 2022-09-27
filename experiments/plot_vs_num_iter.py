@@ -17,7 +17,7 @@ plot_lim_data = {
     "subst":[(0.09,0.65), (0.05,0.6),(0.05,0.60)],
 }
 
-for data in ["mixed","pah","subst"]:
+for d,data in enumerate(["mixed","pah","subst"]):
     with open("\\".join(path) + "\\vs_num_iter_"+ data+".pkl","rb") as handle:
         result = pickle.load(handle)
 
@@ -83,7 +83,7 @@ for data in ["mixed","pah","subst"]:
                 plot_line = True, label = method,
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
-                xticks_format = 0 if e == 2 else -1,
+                xticks_format = 0, # if e == 2 else -1,
                 x_major_tick = 1,
                 ylim = plot_lim_data[data][e],
                 xlabel = "Number of iterations" if e == 2 else None,
@@ -92,14 +92,14 @@ for data in ["mixed","pah","subst"]:
 
             plots[e].ax.text(
                 0.95,0.95,
-                notation[e],
+                notation[d],
                 ha='center', va='center', 
                 transform=plots[e].ax.transAxes,
                 **annotate
                 )
 
     for e,elec_prop in enumerate(elec_prop_list):
-        if e == 0:
+        if e == 0 and data == "mixed":
             """
             plots[e].add_plot(
                 [],[],scatter_color = "gray", scatter_marker = "o",
