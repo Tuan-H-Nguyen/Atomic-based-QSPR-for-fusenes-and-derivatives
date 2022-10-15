@@ -8,7 +8,7 @@ import rdkit
 from rdkit import Chem
 from rdkit.Chem.Draw import rdMolDraw2D
 
-data_type = "subst"
+data_type = "pah"
 
 def ranking(test,number_top,reverse = False):
     rank = []
@@ -23,46 +23,45 @@ def ranking(test,number_top,reverse = False):
 with open("\\".join(path) + "\\"+data_type+"\\result.pkl","rb") as handle:
     result_dict = pickle.load(handle)
 
-for random_state, result in result_dict.items():
-    contributions_list = result["contributions_list"]
-    test_rmsd = result["test_rmsd"]
-    test_smiles = result["test_smiles"]
-    test_Y = result["test_Y"]
+contributions_list = result_dict["contributions_list"]
+test_rmsd = result_dict["test_rmsd"]
+test_smiles = result_dict["test_smiles"]
+test_Y = result_dict["test_Y"]
 
-    min_contr = min([min(con) for con in contributions_list])
-    max_contr = max([max(con) for con in contributions_list])
+min_contr = min([min(con) for con in contributions_list])
+max_contr = max([max(con) for con in contributions_list])
 
-    ranks = [
-        ranking(test_Y,number_top = 10, reverse = True),
-        ranking(test_Y,number_top = 10, reverse = False)
-        ]
-    for c,cat in enumerate(["high_bg","low_bg"]):
-        for idx in ranks[c]:
-            hit_ats = []
-            atom_cols = {}
-            sample = test_smiles[idx]
-            contributions = contributions_list[idx]
-            
-            for i,con in enumerate(contributions):
-                if con <= 0:
-                    hit_ats.append(i)
-                    atom_cols[i] = (1.0,1.0-con/min_contr,1.0-con/min_contr)
-                if con >= 0:
-                    hit_ats.append(i)
-                    atom_cols[i] = (1.0-con/max_contr,1.0-con/max_contr,1.0)
-                    
-            mol = Chem.MolFromSmiles(sample)
+ranks = [
+    ranking(test_Y,number_top = 10, reverse = True),
+    ranking(test_Y,number_top = 10, reverse = False)
+    ]
+for c,cat in enumerate(["high_bg","low_bg"]):
+    for idx in ranks[c]:
+        hit_ats = []
+        atom_cols = {}
+        sample = test_smiles[idx]
+        contributions = contributions_list[idx]
+        
+        for i,con in enumerate(contributions):
+            if con <= 0:
+                hit_ats.append(i)
+                atom_cols[i] = (1.0,1.0-con/min_contr,1.0-con/min_contr)
+            if con >= 0:
+                hit_ats.append(i)
+                atom_cols[i] = (1.0-con/max_contr,1.0-con/max_contr,1.0)
+                
+        mol = Chem.MolFromSmiles(sample)
 
-            d = rdMolDraw2D.MolDraw2DCairo(500, 500) # or MolDraw2DCairo to get PNGs
-            """
-            
-            """
-            rdMolDraw2D.PrepareAndDrawMolecule(
-                d, mol, 
-                highlightAtoms=hit_ats,
-                highlightAtomColors = atom_cols
-                )
+        d = rdMolDraw2D.MolDraw2DCairo(500, 500) # or MolDraw2DCairo to get PNGs
+        """
+        
+        """
+        rdMolDraw2D.PrepareAndDrawMolecule(
+            d, mol, 
+            highlightAtoms=hit_ats,
+            highlightAtomColors = atom_cols
+            )
 
-            d.FinishDrawing()
+        d.FinishDrawing()
 
-            d.WriteDrawingText("\\".join(path) + "\\" + data_type + "\\" +"\\"+cat+"\\test_{}_{}.png".format(idx,random_state))
+        d.WriteDrawingText("\\".join(path) + "\\" + data_type + "\\" +"\\"+cat+"\\test_{}.png".format(idx))

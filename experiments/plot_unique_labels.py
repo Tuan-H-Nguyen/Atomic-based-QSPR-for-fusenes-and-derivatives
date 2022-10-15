@@ -61,7 +61,7 @@ for method,n_labels in num_unique_label.items():
         xticks_format = 0,
         #yticks_format = 0
         xlabel = "Number of iterations",
-        ylabel = "Base 10 logarithm of the number of unique labels"
+        ylabel = "Base 10 logarithm of the length of $\phi$ vector"
         )
 
 plot.ax.legend()
