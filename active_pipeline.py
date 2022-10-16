@@ -41,7 +41,7 @@ def learning(
 
     all_RMSD_list = []
 
-    for i in range(repeat):
+    for run in range(repeat):
         start = time.time()
         pipeline = Pipeline(
             vectorizing_method = kernel, 
@@ -86,7 +86,7 @@ def learning(
             runtime = time.time() - start
             assert sampling_steps > 0
             print("Run {}/{}, {:0f} left. ETA:{:2f}s".format(
-                i,repeat,sampling_steps/steps,sampling_steps*runtime/steps))
+                run+1,repeat,sampling_steps/steps,sampling_steps*runtime/steps))
 
             sampling_steps = steps if steps < sampling_steps else sampling_steps
 
@@ -128,7 +128,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
     final_split = 0.7
     if data_type == "subst":
         num_iter = [2]
-        steps = 1
+        steps = 2
         hyperp["alpha"].remove(5e-2)
         if kernel_str == "subtree":
             pass
@@ -145,7 +145,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
 
     elif data_type == "mixed":
         num_iter = [2]
-        steps = 2
+        steps = 1
         if kernel_str == "subtree":
             pass
         elif kernel_str == "edge":
