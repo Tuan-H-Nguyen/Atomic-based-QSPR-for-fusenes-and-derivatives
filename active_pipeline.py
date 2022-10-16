@@ -33,11 +33,11 @@ def random_argmax(stds):
     return idx[0]
 
 def learning(
-    data_generator, initial_split, 
-    kernel, num_iter, 
-    model, r_param_grid,
-    steps, loops, repeat ,
-    active = True):
+    data_generator, 
+    initial_split, final_split, steps,
+    kernel, model, r_param_grid, num_iter,
+    repeat ,active = True
+    ):
 
     all_RMSD_list = []
 
@@ -50,18 +50,22 @@ def learning(
             r_param_grid = r_param_grid)
 
         train_set, test_set = data_splitter(
-            data_generator, initial_split, 2020)
+            data_generator, initial_split*final_split, 2020)
 
         train_graphs, test_graphs = graph_getter(train_set,test_set)
+
+        final_train_size = int(final_split*(len(train_graphs)+len(test_graphs)))
 
         RMSD_list = []
         train_len_list = []
 
         elec_props_list = ["BG","EA","IP"]
+
         train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
         test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
 
-        for i in tqdm(range(loops)):
+        while len(train_graphs) < final_train_size:
+            start = time.time()
             # 1 train model
             pipeline.fit(train_graphs,train_Y)
 
@@ -78,7 +82,15 @@ def learning(
 
             train_len_list.append(len(train_graphs))
 
-            for i in range(steps):
+            sampling_steps = final_train_size - len(train_graphs)
+            runtime = time.time() - start
+            assert sampling_steps > 0
+            print("Run {}/{}, {:0f} left. ETA:{:2f}s".format(
+                i,repeat,sampling_steps/steps,sampling_steps*runtime/steps))
+
+            sampling_steps = steps if steps < sampling_steps else sampling_steps
+
+            for i in range(sampling_steps):
                 # choose one data points with maximum STD
                 # if several compounds have similar STD, they are selected at random
                 if active:
@@ -112,41 +124,31 @@ def active_learning_pkl(kernel_str, data_type, repeat):
         }
 
     model, hyperp = model_getter("gpr")
-    initial_split = 0.3
-    hyperp["alpha"].remove(5e-2)
+    initial_split = 2/3
+    final_split = 0.7
     if data_type == "subst":
-        loops = 31
         num_iter = [2]
-        steps = 14
+        steps = 1
+        hyperp["alpha"].remove(5e-2)
         if kernel_str == "subtree":
             pass
         elif kernel_str == "edge":
-            #initial_split = 0.64
-            steps = 28
-            loops = 16
             num_iter = [1,2]
 
     elif data_type == "pah":
-        loops = 30
         num_iter = [1,2,3,4,5]
-        steps = 4
+        steps = 1
         if kernel_str == "subtree":
             pass
         elif kernel_str == "edge":
-            #initial_split = 0.64
-            #steps = 2
             num_iter = [1,2,3]
 
     elif data_type == "mixed":
-        loops = 50
         num_iter = [2]
-        initial_split = 0.45
-        steps = 4
+        steps = 2
         if kernel_str == "subtree":
             pass
         elif kernel_str == "edge":
-            #initial_split = 0.7
-            #steps = 2
             num_iter = [0,1,2]
 
     data_generator = data_selector(data_type, "data",2020)
@@ -158,10 +160,9 @@ def active_learning_pkl(kernel_str, data_type, repeat):
         raise Exception("")
     ###################################################################
     train_len_list, RMSD_list = learning(
-        data_generator,0.7*initial_split, 
-        kernel = kernel, num_iter = num_iter,
-        model = model, r_param_grid = hyperp,
-        repeat = repeat, steps = steps, loops = loops, 
+        data_generator,initial_split,final_split, 
+        kernel = kernel, model = model, r_param_grid = hyperp, num_iter = num_iter,
+        repeat = repeat, steps = steps, 
         active = True)
     result_dict["train_set_size"] = train_len_list
     result_dict["active"].append(RMSD_list)
@@ -171,10 +172,9 @@ def active_learning_pkl(kernel_str, data_type, repeat):
     ###################################################################
 
     train_set_size, RMSD_list = learning(
-        data_generator,0.7*initial_split, 
-        kernel = kernel, num_iter = num_iter,
-        model = model, r_param_grid = hyperp ,
-        repeat = repeat, steps = steps, loops = loops,
+        data_generator,initial_split, final_split,
+        kernel = kernel, model = model, r_param_grid = hyperp ,num_iter = num_iter,
+        repeat = repeat, steps = steps, 
         active = False)
     result_dict["random"].append(RMSD_list)
 
