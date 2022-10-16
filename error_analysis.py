@@ -72,7 +72,8 @@ except FileNotFoundError:
     with open("LOO_error.pkl","wb") as handle:
         pickle.dump({
             "smiles_list":all_smiles,
-            "LOO_error":LOO_error
+            "LOO_error":LOO_error,
+            "LOO_std":LOO_std
             }, handle)
 
 errors = np.array(loo_error["LOO_error"])
