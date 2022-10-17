@@ -115,7 +115,7 @@ def learning(
 
     return train_len_list, all_RMSD_list
 
-def active_learning_pkl(kernel_str, data_type, repeat):
+def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     start = time.time()
     result_dict = {
         "train_set_size":[],
@@ -180,7 +180,7 @@ def active_learning_pkl(kernel_str, data_type, repeat):
 
     ###################################################################
 
-    with open("experiments\\active_learning_"+kernel_str+"_"+data_type+".pkl","wb") as log:
+    with open("experiments\\active_learning_"+kernel_str+"_"+data_type+"_" +str(random_state) +".pkl","wb") as log:
         pickle.dump(result_dict,log)
 
 repeat = input("number of repetitions?")
@@ -189,6 +189,7 @@ else: repeat = int(repeat)
 
 kernel_str = input("kernel name?")
 data_type = input("data name?")
+random_state = int(input("random state?"))
 
 if not kernel_str and not data_type:
     print("assess active learning for all models on all dataset")
@@ -197,7 +198,7 @@ if not kernel_str and not data_type:
         for data_type in ["mixed","pah","subst"]:
             print("data_type: ", data_type)
 
-            active_learning_pkl(kernel_str,data_type,repeat)
+            active_learning_pkl(kernel_str,data_type,repeat,random_state)
 
 else:
-    active_learning_pkl(kernel_str,data_type,repeat)
+    active_learning_pkl(kernel_str,data_type,repeat,random_state)
