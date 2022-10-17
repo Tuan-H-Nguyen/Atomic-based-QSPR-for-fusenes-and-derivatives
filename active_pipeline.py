@@ -127,7 +127,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     initial_split = 2/3
     final_split = 0.7
     if data_type == "subst":
-        steps = 2
+        steps = 4
         hyperp["alpha"].remove(5e-2)
         if kernel_str == "subtree":
             num_iter = [2]
