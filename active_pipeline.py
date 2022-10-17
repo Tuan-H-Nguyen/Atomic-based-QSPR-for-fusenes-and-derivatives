@@ -130,7 +130,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         steps = 2
         hyperp["alpha"].remove(5e-2)
         if kernel_str == "subtree":
-            num_iter = [3]
+            num_iter = [2]
         elif kernel_str == "edge":
             num_iter = [2]
 
