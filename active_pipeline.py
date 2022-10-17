@@ -34,7 +34,7 @@ def random_argmax(stds):
 
 def learning(
     data_generator, 
-    initial_split, final_split, steps,
+    initial_split, final_split, random_state, steps,
     kernel, model, r_param_grid, num_iter,
     repeat ,active = True
     ):
@@ -50,7 +50,7 @@ def learning(
             r_param_grid = r_param_grid)
 
         train_set, test_set = data_splitter(
-            data_generator, initial_split*final_split, 2020)
+            data_generator, initial_split*final_split, random_state)
 
         train_graphs, test_graphs = graph_getter(train_set,test_set)
 
@@ -151,7 +151,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         elif kernel_str == "edge":
             num_iter = [0,1,2]
 
-    data_generator = data_selector(data_type, "data",2020)
+    data_generator = data_selector(data_type, "data",random_state)
     if kernel_str == "subtree":
         kernel = WLSubtree
     elif kernel_str == "edge":
@@ -160,7 +160,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         raise Exception("")
     ###################################################################
     train_len_list, RMSD_list = learning(
-        data_generator,initial_split,final_split, 
+        data_generator,initial_split,final_split, random_state = random_state,
         kernel = kernel, model = model, r_param_grid = hyperp, num_iter = num_iter,
         repeat = repeat, steps = steps, 
         active = True)
@@ -172,7 +172,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     ###################################################################
 
     train_set_size, RMSD_list = learning(
-        data_generator,initial_split, final_split,
+        data_generator,initial_split, final_split,random_state = random_state,
         kernel = kernel, model = model, r_param_grid = hyperp ,num_iter = num_iter,
         repeat = repeat, steps = steps, 
         active = False)
