@@ -127,29 +127,26 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     initial_split = 2/3
     final_split = 0.7
     if data_type == "subst":
-        num_iter = [2]
         steps = 2
         hyperp["alpha"].remove(5e-2)
         if kernel_str == "subtree":
-            pass
+            num_iter = [3]
         elif kernel_str == "edge":
-            num_iter = [1,2]
+            num_iter = [2]
 
     elif data_type == "pah":
-        num_iter = [1,2,3,4,5]
         steps = 1
         if kernel_str == "subtree":
-            pass
+            num_iter = [2,3]
         elif kernel_str == "edge":
-            num_iter = [1,2,3]
+            num_iter = [2]
 
     elif data_type == "mixed":
-        num_iter = [2]
         steps = 1
         if kernel_str == "subtree":
-            pass
+            num_iter = [2]
         elif kernel_str == "edge":
-            num_iter = [0,1,2]
+            num_iter = [2]
 
     data_generator = data_selector(data_type, "data",random_state)
     if kernel_str == "subtree":
