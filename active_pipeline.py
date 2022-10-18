@@ -124,29 +124,35 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         }
 
     model, hyperp = model_getter("gpr")
-    initial_split = 2/3
+    initial_split = 1/3
     final_split = 0.7
+    number_sampling = 20
     if data_type == "subst":
-        steps = 4
-        hyperp["alpha"].remove(5e-2)
+        steps = int( 887*final_split*(1-initial_split) / number_sampling )
         if kernel_str == "subtree":
-            num_iter = [2]
+            num_iter = [1,2]
+            #num_iter = [2]
+            hyperp["alpha"].remove(5e-2)
         elif kernel_str == "edge":
-            num_iter = [2]
+            num_iter = [1,2]
+            hyperp["alpha"].remove(5e-3)
 
     elif data_type == "pah":
-        steps = 1
+        steps = int( 248*final_split*(1-initial_split) / number_sampling )
         if kernel_str == "subtree":
-            num_iter = [2,3]
+            num_iter = [1,2,3]
+            #num_iter = [2,3]
         elif kernel_str == "edge":
-            num_iter = [2]
+            num_iter = [1,2]
 
     elif data_type == "mixed":
-        steps = 1
+        steps = int( 425*final_split*(1-initial_split) / number_sampling )
         if kernel_str == "subtree":
-            num_iter = [2]
+            num_iter = [1,2]
+            #num_iter = [2]
         elif kernel_str == "edge":
-            num_iter = [2]
+            num_iter = [1,2]
+            #num_iter = [2]
 
     data_generator = data_selector(data_type, "data",random_state)
     if kernel_str == "subtree":

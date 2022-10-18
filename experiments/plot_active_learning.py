@@ -29,8 +29,8 @@ for kernel_str in ["subtree","edge"]:
     std_r = []
 
     for data in ["mixed","pah","subst"]:
-        with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
-        #with open("\\".join(path) + "\\active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
+        #with open("\\".join(path) + "\\experiments_active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
+        with open("\\".join(path) + "\\active_learning_"+kernel_str+"_"+ data+".pkl","rb") as handle:
             result = pickle.load(handle)
 
         train_set_sizes.append(np.array(result["train_set_size"]))
@@ -70,6 +70,7 @@ for kernel_str in ["subtree","edge"]:
                 scatter_marker = ".",
                 scatter_color = "orange", line_color = "orange",
                 xticks_format = 0 if j == 2 else -1,
+                yticks_format = 3,
                 xlabel = "Training set size (samples)"  if j == 2 else None,
                 ylabel = "Test RMSD for {} (eV)".format(elec_prop) if i == 0 else None,
                 )
