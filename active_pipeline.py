@@ -59,7 +59,7 @@ def learning(
         RMSD_list = []
         train_len_list = []
 
-        elec_props_list = ["BG","EA","IP"]
+        elec_props_list = ["BG"]
 
         train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
         test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
@@ -124,9 +124,9 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         }
 
     model, hyperp = model_getter("gpr")
-    initial_split = 1/3
+    initial_split = 0.2
     final_split = 0.7
-    number_sampling = 20
+    number_sampling = 50
     if data_type == "subst":
         steps = int( 887*final_split*(1-initial_split) / number_sampling )
         if kernel_str == "subtree":
@@ -146,7 +146,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
             num_iter = [1,2]
 
     elif data_type == "mixed":
-        steps = int( 425*final_split*(1-initial_split) / number_sampling )
+        steps = int( 425*final_split*(1-initial_split) / 10 )
         if kernel_str == "subtree":
             num_iter = [1,2]
             #num_iter = [2]

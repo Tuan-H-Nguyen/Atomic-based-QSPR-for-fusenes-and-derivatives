@@ -16,7 +16,10 @@ from rdkit.Chem.Draw import rdMolDraw2D
 
 from molecular_graph.smiles import smiles2graph
 from data.data import ReducedData, stratified_sampling
+
 from utils.criterion import RMSD
+from utils.plot_utility_v3 import scatter_plot
+
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
 
@@ -77,6 +80,7 @@ except FileNotFoundError:
             }, handle)
 
 errors = np.array(loo_error["LOO_error"])
+predictive_std = np.array(loo_error["LOO_std"])
 smiles = loo_error["smiles_list"]
 indices = list(range(len(errors)))
 
@@ -101,3 +105,10 @@ img = Draw.MolsToGridImage(
     legends = ["{} . LOO_BG = {:.2f}eV".format(i+1,e[0]) for i,e in enumerate(sub_errors)]
     )
 img.save("experiments\\most_error.png")
+
+plot = scatter_plot()
+
+plot.add_plot(
+    errors, predictive_std)
+
+plot.save_fig("errors_vs_std.jpeg",dpi=600)

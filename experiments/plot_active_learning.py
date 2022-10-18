@@ -13,10 +13,10 @@ from utils.plot_utility_v2 import scatter_plot, font_legend, annotate
 
 kernel_str = "subtree"
 
-text = ["A","B","C"]
+text = [["A","B","C"],["D","E","F"]]
 start = 0
 
-for kernel_str in ["subtree","edge"]:
+for k,kernel_str in enumerate(["subtree","edge"]):
     train_set_sizes = []
     shift = []
 
@@ -69,10 +69,10 @@ for kernel_str in ["subtree","edge"]:
                 plot_line = True, 
                 scatter_marker = ".",
                 scatter_color = "orange", line_color = "orange",
-                xticks_format = 0 if j == 2 else -1,
+                xticks_format = 0 ,#if j == 2 else -1,
                 yticks_format = 3,
-                xlabel = "Training set size (samples)"  if j == 2 else None,
-                ylabel = "Test RMSD for {} (eV)".format(elec_prop) if i == 0 else None,
+                xlabel = "Training set size (samples)"  if k == 1 else None,
+                ylabel = "Test RMSD for {} (eV)".format(elec_prop),# if i == 0 else None,
                 )
 
             plot.ax[i].fill_between(
@@ -82,9 +82,9 @@ for kernel_str in ["subtree","edge"]:
                 color = "orange", alpha = 0.1
                 )
 
-            plot.add_text2(0.95,0.95,"("+text[i]+str(j+1)+")",idx = i)
+            plot.add_text2(0.95,0.95,"("+text[k][i]+")",idx=i)
 
-        if j == 0:
+        if k == 0:
             plot.ax[0].legend(
                 prop = font_legend,
                 loc="lower left",
