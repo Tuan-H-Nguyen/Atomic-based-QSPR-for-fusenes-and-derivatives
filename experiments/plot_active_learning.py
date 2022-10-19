@@ -34,18 +34,21 @@ for k,kernel_str in enumerate(["subtree","edge"]):
             result = pickle.load(handle)
 
         train_set_sizes.append(np.array(result["train_set_size"]))
+        print(np.array(result["train_set_size"]).shape)
         shift.append(np.ones((len(train_set_sizes[start:]))))
 
-        active_result = np.squeeze(np.array(result["active"]),axis=0)
+        active_result = np.array(result["active"])
+        print(active_result.shape)
         error_a.append(np.mean(active_result,axis=0))
         std_a.append(np.std(active_result,axis= 0))
 
-        random_result = np.squeeze(np.array(result["random"]),axis=0)
+        random_result = np.array(result["random"])
+        print(random_result.shape)
         error_r.append(np.mean(random_result,axis=0))
         std_r.append(np.std(random_result,axis=0))
 
 
-    for j,elec_prop in enumerate(["BG","EA","IP"]):
+    for j,elec_prop in enumerate(["BG"]):
         plot = scatter_plot(1,3,figsize = (16,4))
         for i in range(3):
             plot.add_plot(

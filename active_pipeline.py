@@ -140,10 +140,10 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     elif data_type == "pah":
         steps = int( 248*final_split*(1-initial_split) / number_sampling )
         if kernel_str == "subtree":
-            num_iter = [1,2,3]
+            num_iter = [0,1,2,3]
             #num_iter = [2,3]
         elif kernel_str == "edge":
-            num_iter = [1,2]
+            num_iter = [0,1,2]
 
     elif data_type == "mixed":
         steps = int( 425*final_split*(1-initial_split) / number_sampling )
