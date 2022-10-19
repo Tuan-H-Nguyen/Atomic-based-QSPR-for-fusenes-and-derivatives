@@ -14,7 +14,7 @@ from models.gpr import ModGaussianProcessRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import PCA, TruncatedSVD
 
-from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
+#from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
 from rdkit.Chem import MolFromSmiles, MolToSmiles
 
 from molecular_graph.smiles import smiles2graph
