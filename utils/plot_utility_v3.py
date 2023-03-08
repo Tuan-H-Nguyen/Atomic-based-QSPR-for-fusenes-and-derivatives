@@ -145,10 +145,21 @@ class scatter_plot:
             ax.yaxis.set_major_locator(plt.NullLocator())
         if y_minor_tick:
             ax.yaxis.set_minor_locator(plt.MultipleLocator(y_minor_tick))
-        labely = ax.get_yticks().tolist()
-        ax.yaxis.set_ticklabels(labely,**tick)
-        yticks_format = '%.f' if yticks_format==0 else '%.'+str(yticks_format)+'f'
-        ax.yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
+        try:
+            labely = ax.get_yticks().tolist()
+            ax.yaxis.set_ticklabels(labely,**tick)
+            
+            if yticks_format == -1:
+                ax.yaxis.set_major_formatter(plt.NullFormatter())
+            else:
+                yticks_format = '%.'+str(yticks_format)+'f'
+                ax.yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
+        except AttributeError:
+            pass
+        #labely = ax.get_yticks().tolist()
+        #ax.yaxis.set_ticklabels(labely,**tick)
+        #yticks_format = '%.f' if yticks_format==0 else '%.'+str(yticks_format)+'f'
+        #ax.yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
         if tick_color:
             ax.tick_params(axis='y',labelcolor=tick_color)
         

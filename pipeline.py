@@ -3,9 +3,9 @@ import numpy as np
 
 from sklearn.base import BaseEstimator
 #from sklearn.pipeline import Pipeline
-from sklearn.linear_model import Ridge
+from sklearn.linear_model import Ridge, LinearRegression
 from sklearn.kernel_ridge import KernelRidge
-from sklearn.gaussian_process.kernels import DotProduct, ConstantKernel, RBF
+from sklearn.gaussian_process.kernels import DotProduct, ConstantKernel, RBF, WhiteKernel
 from sklearn.gaussian_process import GaussianProcessRegressor
 from models.gpr import ModGaussianProcessRegressor
 
@@ -87,16 +87,18 @@ def model_getter(model,kernel = None,grid_search = False,name = None):
         regressor,param_grid = Ridge, {
                 name + "alpha": [10e-3, 0.1],
                 }
+    elif model == "linear":
+        regressor,param_grid = LinearRegression, {}
 
-    elif model =="gpr":
+    elif "gpr" in model:
         kernel1 = DotProduct(sigma_0 = 1,sigma_0_bounds = (1e-10,1e5)) * ConstantKernel(1.0)
-        kernel2 = RBF() * ConstantKernel(1.0)
+        kernel2 = RBF() * ConstantKernel(1.0) # + WhiteKernel()
+        kernel3 = ConstantKernel(0.1, (1e-10,1e5)) * (
+            DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-10,1e5))
+        ) #+ WhiteKernel()
         regressor,param_grid = ModGaussianProcessRegressor, {
-                "kernel": [kernel2] ,
-                "alpha" : [
-                    5e-3,
-                    5e-2
-                    ],
+                "kernel": [kernel3] if model =="gpr_" else [kernel2] ,
+                "alpha" : [5e-3,5e-2] if model == "gpr_" else [5e-3,5e-2] ,
                 "_max_iter":[20000]
                 }
     else:

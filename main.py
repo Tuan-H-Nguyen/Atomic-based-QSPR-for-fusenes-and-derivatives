@@ -19,7 +19,7 @@ parser.add_argument(
     Regression model to use. rr for ridge regression, krr for Kernel Ridge with RBF kernel,
     krr_poly for Kernel Ridge with polynomial kernel and krr_linear for linear kernel. Default to krr
     """, 
-    type = str, choices = ["rr","krr","krr_poly","krr_linear","gpr"],
+    type = str, choices = ["rr","krr","krr_poly","krr_linear","gpr","gpr_","linear"],
     default = "krr")
 parser.add_argument(
     "-k","--kernel",
@@ -42,6 +42,9 @@ parser.add_argument(
 parser.add_argument(
     "-s", "--random_state",
     help = "Random seed", type = int, default = 2022)
+parser.add_argument(
+    "-o", "--output",
+    help = "Write the result to output file", type = bool, default = False)
 
 args = parser.parse_args()
 
@@ -83,6 +86,11 @@ for i,error in enumerate(["Train error", "Test error"]):
         print("\tSTD on "+elec_prop + ": {:.2f}(eV)".format(
             std_rmsd[e + i*len(elec_prop_list)]))
 
+    if args.output:
+        np.savetxt(
+            "s_"+ args.data + "_" + args.kernel + "_" + args.model \
+            + "_" + str(args.random_state) + ".txt",
+            np.array(all_rmsd))
 
 
 

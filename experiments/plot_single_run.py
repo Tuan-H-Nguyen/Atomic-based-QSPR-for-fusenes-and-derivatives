@@ -1,63 +1,92 @@
 import sys, os
 path = os.path.dirname(os.path.realpath(__file__)).split("\\")
-path = "\\".join(path[:-1])
-sys.path.append(path)
-print(path)
+sys.path.append("\\".join(path[:-1]))
 
 import numpy as np
+import matplotlib.pyplot as plt
 
-from data.data import ReducedData, stratified_sampling
-from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
-    GraphVectorizer, GraphHashVectorizer)
-from pipeline import Pipeline, model_getter, graph_getter, data_splitter, RMSD
+from utils.plot_utility_v2 import scatter_plot
 
-from utils.plot_utility_v3 import scatter_plot
+random_state = 315
+elec_prop_list = ["BG","EA","IP"]
+elec_prop_full_list = [
+    "Bandgap","EA","IP"
+    ]
+dataset_list = ["mixed","pah","subst"]
+models_list = [
+    #("ecfp", "rr"),
+    #("subtree", "rr"),
+    #("edge", "rr"),
+    ("ecfp", "gpr"),
+    ("subtree", "gpr"),
+    ("edge", "gpr"),
+    ("shortest_path", "gpr"),
+]
 
-random_state = 2020
-data_type = "subst"
+def name_exchange(model):
+    kernel, model = model
+    kernel_names = {
+        "subtree":"WL-A", "edge":"WL-AB", "shortest_path":"WL-AD",
+        "ecfp":"ECFP"
+        }
+    kernel = kernel_names[kernel]
+    model = model.upper()
+    return model + "/\n" + kernel
 
-if data_type == "mixed":
-    train_set,test_set = data_splitter(
-        ReducedData(
-            2000, random_state,
-            path = path+"\\data",
-            pah_only = False, subst_only = False),
-        0.7,random_state)
-elif data_type == "pah":
-    train_set,test_set = data_splitter(
-        ReducedData(
-            2000, random_state,
-            path = path+"\\data",
-            pah_only = True, subst_only = False),
-        0.7,random_state)
-elif data_type == "subst":
-    train_set,test_set = data_splitter(
-        ReducedData(
-            2000, random_state,
-            path = path+"\\data",
-            pah_only = False, subst_only = True),
-        0.7,random_state)
+ylim_list = [(0.07,0.33),(0.03,0.30),(0.04,0.25)]
 
-train_graphs, test_graphs = graph_getter(train_set,test_set)
+labels_list = ["A","B","C","D","E","F","G","H","I"]
 
-train_Y = np.array(train_set.loc[:,["BG"]])
-test_Y = np.array(test_set.loc[:,["BG"]])
+for e,prop in enumerate(elec_prop_list):
+    plot = scatter_plot(1,3,figsize = (18,4))
+    for i, dataset in enumerate(dataset_list):
+        plot_data = []
+        mean_error = []
+        for m,model in enumerate(models_list):
+            kernel, model = model
+            test_result = np.loadtxt(
+                "\\".join(path) + "\\" + \
+                "s_"+ dataset + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt")
 
-regressor, r_param_grid = model_getter("gpr")
-model = Pipeline(
-    vectorizing_method = WLSubtree,
-    gv_param_grid = {"num_iter":[2,3]},
-    regressor = regressor,
-    r_param_grid = r_param_grid)
+            test_result = test_result[:,len(elec_prop_list):]
 
-model.fit(train_graphs, train_Y)
+            plot_data.append(test_result[:,e])
+            mean_error.append(np.mean(test_result[:,e]))
 
-test_Y_hat,test_std = model.predict(test_graphs,return_std = True)
+            print(prop + " " + dataset + " " + model + " " + kernel + ": {}".format(np.mean(test_result[:,e])))
 
-plot_std = scatter_plot()
+        plot.add_plot(
+            [i+1 for i in range(len(models_list))],mean_error,idx = i,
+            ylim = ylim_list[e],
+            yticks_format = 3 if i == 0 else -1,
+            xlabel = "Models" if e == 2 else None,
+            ylabel = "RMSD for {}(eV)".format(elec_prop_full_list[e]) if i == 0 else None,
+            scatter_marker = "s",
+            scatter_color = "black"
+            )
 
-plot_std.add_plot(
-    range(len(test_Y)),
-    test_std)
+        plot.ax[i].boxplot(
+            plot_data,
+            labels = [name_exchange(model) for model in models_list]
+            )
 
-plot_std.save_fig(path+"\\experiments\\[result2]\\std_"+data_type+".jpeg")
+        if e != 2:
+            plot.add_plot(
+                [],[],idx = i,
+                xticks_format = -1,
+                yticks_format = 2 if i == 0 else -1,
+                xlabel = "Models" if e == 2 else None,
+                ylabel = "RMSD for {}(eV)".format(elec_prop_full_list[e]) if i == 0 else None,
+                )
+
+        plot.add_text(
+            0.95,0.95, text = "(" + labels_list[i+e*3] + ")",
+            va = "top", ha = "right",idx = i)
+
+    plot.save_fig( 
+        "\\".join(path) + "\\" + \
+        "single_run_result\\GPR_"+prop+".jpeg")
+
+
+
+

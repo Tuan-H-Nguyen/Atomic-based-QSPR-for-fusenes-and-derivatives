@@ -67,7 +67,8 @@ def merge_image3(file1, file2,file3):
 	result.paste(im=image3, box=(0, height1 + height2))
 	return result
 	
-foo = merge_image2(*["experiments\\active_learning_"+kernel_str+"_"+"BG"+".jpeg" for kernel_str in ["subtree","edge"]])
+foo = merge_image3(*[
+    "experiments\\active_learning_"+kernel_str+"_"+"BG"+".jpeg" for kernel_str in ["subtree","edge","shortest_path"]])
 foo.save(
         path+"\\active_learning.jpeg")
 """

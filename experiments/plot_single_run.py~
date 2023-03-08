@@ -1,0 +1,57 @@
+import sys, os
+path = os.path.dirname(os.path.realpath(__file__)).split("\\")
+sys.path.append("\\".join(path[:-1]))
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from utils.plot_utility_v2 import scatter_plot
+
+random_state = 315
+data_type = "mixed"
+
+elec_prop_list = ["BG","EA","IP"]
+models_list = [
+    ("ecfp", "rr"),
+    ("subtree", "rr"),
+    ("edge", "rr"),
+    ("ecfp", "gpr"),
+    ("subtree", "gpr"),
+    ("edge", "gpr"),
+]
+
+def name_exchange(model):
+    kernel, model = model
+    kernel_names = {
+        "subtree":"WL-A", "edge":"WL-AB", "shortest_path":"WL-AD",
+        "ecfp":"ECFP"
+        }
+    kernel = kernel_names[kernel]
+    model = model.upper()
+    return model + "/\n" + kernel
+
+plot = scatter_plot(1,3,figsize = (16,4))
+
+for e, prop in enumerate(elec_prop_list):
+    plot_bg_data = []
+    for model in models_list:
+        kernel, model = model
+        test_result = np.loadtxt(
+            "\\".join(path) + "\\" + \
+            "s_"+ data_type + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt")
+
+        test_result = test_result[:,len(elec_prop_list):]
+        plot_bg_data.append(test_result[:,e])
+
+    plot.ax[e].boxplot(
+        plot_bg_data,
+        labels = [name_exchange(model) for model in models_list]
+        )
+
+plot.save_fig( 
+    "\\".join(path) + "\\" + \
+    "single_run_result\\mixed_bg.jpeg")
+
+
+
+

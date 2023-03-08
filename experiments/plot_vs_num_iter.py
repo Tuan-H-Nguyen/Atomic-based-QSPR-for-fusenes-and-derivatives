@@ -14,7 +14,7 @@ from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
 plot_lim_data = {
     "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
     "pah":[(0.08,0.65), (0.03,0.35),(0.03,0.30)],
-    "subst":[(0.09,0.65), (0.05,0.6),(0.05,0.60)],
+    "subst":[(0.09,0.70), (0.05,0.6),(0.05,0.60)],
 }
 
 for d,data in enumerate(["mixed","pah","subst"]):
@@ -24,17 +24,32 @@ for d,data in enumerate(["mixed","pah","subst"]):
     std = np.std(result,axis= 0)
     result = np.mean(result,axis= 0)
 
+    with open("\\".join(path) + "\\vs_num_iter_"+ data+"_sp.pkl","rb") as handle:
+        sp_result = pickle.load(handle)
+
+    std = np.concatenate(
+        [
+            std,
+            np.std(sp_result,axis= 0),
+        ])
+
+    result = np.concatenate(
+        [
+            result,
+            np.mean(sp_result,axis= 0)
+        ])
+
     elec_prop_list = ["BG","EA","IP"]
     method_list = [
         "WL-A/RR", "WL-A/GPR",
         "WL-AB/RR", "WL-AB/GPR",
-        #"WL-AD/RR","WL-AD/KRR"
+        "WL-AD/RR","WL-AD/GPR"
         ]
 
     color = [
         "orange","blue",
         "crimson","cyan",
-        #"gray","black"
+        "gray","black"
         ]
 
     markers = [
@@ -52,17 +67,23 @@ for d,data in enumerate(["mixed","pah","subst"]):
             num_iters = [0,1,2,3,4,5]
             if method == "WL-AB/GPR" : num_iters = [0,1,2]
             if method == "WL-A/GPR" : num_iters = [0,1,2,3]
+            if method == "WL-AD/RR" : num_iters = [0,1,2,3]
+            if method == "WL-AD/GPR" : num_iters = [0,1,2]
         elif data == "pah":
             num_iters = [0,1,2,3,4,5]
             if method == "WL-AB/GPR" : num_iters = [0,1,2]
             if method == "WL-A/GPR" : num_iters = [0,1,2,3]
+            if method == "WL-AD/RR" : num_iters = [0,1,2,3]
+            if method == "WL-AD/GPR" : num_iters = [0,1,2]
         elif data == "subst":
             num_iters = [0,1,2,3,4,5]
             if method == "WL-AB/GPR" : num_iters = [0,1,2]
             if method == "WL-A/GPR" : num_iters = [0,1,2,3]
+            if method == "WL-AD/RR" : num_iters = [0,1,2]
+            if method == "WL-AD/GPR" : num_iters = [0,1,2]
         for e,elec_prop in enumerate(elec_prop_list):
             if j > 3:
-                continue
+                pass
             else:
                 n = len(num_iters)
 
@@ -84,6 +105,7 @@ for d,data in enumerate(["mixed","pah","subst"]):
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
                 xticks_format = 0, # if e == 2 else -1,
+                yticks_format = -1, # if e == 2 else -1,
                 x_major_tick = 1,
                 ylim = plot_lim_data[data][e],
                 xlabel = "Number of iterations" if d == 2 else None,
@@ -118,9 +140,11 @@ for d,data in enumerate(["mixed","pah","subst"]):
                 loc="lower left",
                 bbox_to_anchor=(0,1.02,1,0.2),
                 mode="expand", borderaxespad=0,
-                ncol = 2
+                ncol = 3
                 )
         plots[e].save_fig("\\".join(path)+"\\[result]\\vs_num_iter_"+data+"_"+elec_prop+".jpeg")
+        print("fig saved at ", "\\".join(path)+"\\[result]\\vs_num_iter_"+data+"_"+elec_prop+".jpeg")
+
 
 
 

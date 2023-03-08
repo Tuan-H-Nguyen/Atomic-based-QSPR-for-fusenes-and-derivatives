@@ -81,16 +81,16 @@ for i in range(N):
 
         if data == "mixed":
             num_iters = [0,1,2,3,4,5]
-            if j == 1: num_iters = [0,1,2,3]
-            if j == 3: num_iters = [0,1,2] # verified w single calculation
+            if j == 1: num_iters = [0,1,2,3,4]
+            if j == 3: num_iters = [0,1,2,3,4] # verified w single calculation
         elif data == "pah":
             num_iters = [0,1,2,3,4,5]
-            if j == 1: num_iters = [0,1,2,3]
-            if j == 3: num_iters = [0,1,2]
+            if j == 1: num_iters = [0,1,2,3,4]
+            if j == 3: num_iters = [0,1,2,3,4]
         elif data == "subst":
             num_iters = [0,1,2,3,4,5]
-            if j == 1: num_iters = [0,1,2,3] # verified, not overfit w 3, 4 but long compute time
-            if j == 3: num_iters = [0,1,2] # verified, not overfit w 3, 4 but long compute time
+            if j == 1: num_iters = [0,1,2,3,4] # verified, not overfit w 3, 4 but long compute time
+            if j == 3: num_iters = [0,1,2,3,4] # verified, not overfit w 3, 4 but long compute time
 
         for num_iter in num_iters:
             label_method, regress_model = method

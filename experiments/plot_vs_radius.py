@@ -52,7 +52,7 @@ for d,data in enumerate(["mixed","pah","subst"]):
     plot_lim_data = {
         "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
         "pah":[(0.08,0.65), (0.03,0.35),(0.03,0.30)],
-        "subst":[(0.09,0.65), (0.05,0.6),(0.05,0.60)],
+        "subst":[(0.09,0.70), (0.05,0.6),(0.05,0.60)],
     }
 
     for e,elec_prop in enumerate(elec_prop_list):

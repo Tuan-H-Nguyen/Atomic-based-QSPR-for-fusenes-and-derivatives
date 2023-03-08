@@ -59,12 +59,20 @@ def merge_image3(file1, file2,file3):
 	result.paste(im=image3, box=(0, height1 + height2))
 	return result
 	
-	
 
-#erge_image2('loss_curve_full_seed_2020.png','loss_curve_truncated_seed_2020.png').save('learn_curve_seed_2020.png')
-#merge_image2('p_record_curve_full_2020.png','p_record_curve_truncated_2020.png').save('p_record_2020.png')
-merge_image2('Screenshot (28).png','Screenshot (29).png').save('anime.png')
-#merge_image2('chuyende121acceptorMO.png','chuyende121acceptorBG.png').save('chuyende121acceptor.png')
+def side_merge_any(files_list,open_img=True):
 
+    if open_img:
+        files_list = [Image.open(file) for file in files_list]
 
-# %%
+    widths = [width for width,_ in [file.size for file in files_list]]
+    widths.insert(0,0)
+    result_width = sum(widths)
+    result_height = max([height for _,height in [file.size for file in files_list]])
+
+    result = Image.new('RGB', (result_width, result_height),color = 'white')
+
+    for f,file in enumerate(files_list):
+        result.paste(im=file, box=(sum(widths[:f+1]), 0))
+
+    return result

@@ -94,13 +94,13 @@ print("std leave-one-out error",np.std(errors))
 
 mols = []
 sub_errors  = []
-for i in [1,5,8,9,10,11,16,17]:
+for i in [1,5,8,9,10,11,16,17,18]:
     idx = indices[i]
     mols.append(Chem.MolFromSmiles(smiles[idx]))
     sub_errors.append(errors[idx])
 
 img = Draw.MolsToGridImage(
-    mols,molsPerRow=4,
+    mols,molsPerRow=3,
     subImgSize=(400,200),
     legends = ["{} . LOO_BG = {:.2f}eV".format(i+1,e[0]) for i,e in enumerate(sub_errors)]
     )

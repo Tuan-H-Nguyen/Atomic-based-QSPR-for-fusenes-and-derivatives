@@ -7,11 +7,11 @@ from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 
 
 #plt font initialize
-annotate = {'fontname':'Times New Roman','weight':'bold','size':13}
+annotate = {'fontname':'Times New Roman','weight':'bold','size':20}
 tick = {'fontname':'Times New Roman','size':13}
 font = FontProperties()
 font.set_weight('bold')
-font_legend = font_manager.FontProperties(family = 'Times New Roman',size = 12)
+font_legend = font_manager.FontProperties(family = 'Times New Roman',size = 20)
   
 def plot_histogram(
     dataset,
@@ -140,10 +140,21 @@ class scatter_plot:
             ax[idx].yaxis.set_major_locator(plt.NullLocator())
         if y_minor_tick:
             ax[idx].yaxis.set_minor_locator(plt.MultipleLocator(y_minor_tick))
-        labely = ax[idx].get_yticks().tolist()
-        ax[idx].yaxis.set_ticklabels(labely,**tick)
-        yticks_format = '%.f' if yticks_format==0 else '%.'+str(yticks_format)+'f'
-        ax[idx].yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
+        try:
+            labely = ax[idx].get_yticks().tolist()
+            ax[idx].yaxis.set_ticklabels(labely,**tick)
+            
+            if yticks_format == -1:
+                ax[idx].yaxis.set_major_formatter(plt.NullFormatter())
+            else:
+                yticks_format = '%.'+str(yticks_format)+'f'
+                ax[idx].yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
+        except AttributeError:
+            pass
+        #labely = ax[idx].get_yticks().tolist()
+        #ax[idx].yaxis.set_ticklabels(labely,**tick)
+        #yticks_format = '%.f' if yticks_format==0 else '%.'+str(yticks_format)+'f'
+        #ax[idx].yaxis.set_major_formatter(FormatStrFormatter(yticks_format))
         if tick_color:
             ax[row_idx,col_idx].tick_params(axis='y',labelcolor=tick_color)
         
