@@ -91,8 +91,9 @@ def model_getter(model,kernel = None,grid_search = False,name = None):
         regressor,param_grid = LinearRegression, {}
 
     elif "gpr" in model:
-        kernel1 = DotProduct(sigma_0 = 1,sigma_0_bounds = (1e-10,1e5)) * ConstantKernel(1.0)
-        kernel2 = RBF() * ConstantKernel(1.0) # + WhiteKernel()
+        #kernel1 = DotProduct(sigma_0 = 1,sigma_0_bounds = (1e-10,1e5)) * ConstantKernel(1.0)
+        kernel2 = RBF(length_scale_bounds = (1e-6,1e5)) \
+            * ConstantKernel(1.0) # + WhiteKernel()
         kernel3 = ConstantKernel(0.1, (1e-10,1e5)) * (
             DotProduct(sigma_0=1.0, sigma_0_bounds=(1e-10,1e5))
         ) #+ WhiteKernel()
