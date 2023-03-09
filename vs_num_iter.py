@@ -15,8 +15,8 @@ from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath,
 from pipeline import model_getter, graph_getter, data_splitter
 
 data = input("data name?")
-N = 10
-random_state = 2022
+N = int(input("number of repetition?"))
+random_state = int(input("random_state?"))
 
 elec_prop_list = ["BG","EA","IP"]
 
@@ -119,8 +119,7 @@ for i in range(N):
 
                 result[i,e+j*len(elec_prop_list), num_iter] += test_rmsd 
 
-with open("vs_num_iter_"+data+".pkl","wb") as handle:
+with open("vs_num_iter_"+data+"_"+str(random_state)+"_"+str(N)+".pkl","wb") as handle:
     pickle.dump(result,handle)
-
 
 
