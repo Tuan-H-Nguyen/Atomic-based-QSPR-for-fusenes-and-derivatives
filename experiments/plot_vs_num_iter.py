@@ -9,7 +9,10 @@ import time
 import numpy as np
 import pickle
 
-from utils.plot_utility_v3 import scatter_plot, font_legend, annotate
+import matplotlib.font_manager as font_manager
+from utils.plot_utility_v2 import scatter_plot, font_legend, annotate
+
+font_legend = font_manager.FontProperties(family = 'Times New Roman',size = 15)
 
 plot_lim_data = {
     "mixed":[(0.13,0.65), (0.09,0.5),(0.05,0.39)],
@@ -24,72 +27,104 @@ for d,data in enumerate(["mixed","pah","subst"]):
     std = np.std(result,axis= 0)
     result = np.mean(result,axis= 0)
 
+    with open("\\".join(path) + "\\vs_ecfp_radius_"+ data+".pkl","rb") as handle:
+        result2 = pickle.load(handle)
+
+    std2 = np.std(result2,axis= 0)
+    result2 = np.mean(result2,axis= 0)
+
     with open("\\".join(path) + "\\vs_num_iter_"+ data+"_sp.pkl","rb") as handle:
         sp_result = pickle.load(handle)
 
+    std3 = np.std(sp_result,axis= 0)
+    result3 = np.mean(sp_result,axis= 0)
+
     std = np.concatenate(
         [
-            std,
-            np.std(sp_result,axis= 0),
-        ])
+            std2,
+            np.pad(std,((0,0),(0,len(std2[0]) - len(std[0]))) ),
+            np.pad(std3,((0,0),(0,len(std2[0]) - len(std3[0]))) ),
+        ], axis = 0)
 
     result = np.concatenate(
         [
-            result,
-            np.mean(sp_result,axis= 0)
-        ])
+            result2,
+            np.pad(result,((0,0),(0,len(result2[0]) - len(result[0]))) ),
+            np.pad(result3,((0,0),(0,len(result2[0]) - len(result3[0]))) ) ,
+        ], axis = 0)
 
     elec_prop_list = ["BG","EA","IP"]
     method_list = [
-        "WL-A/RR", "WL-A/GPR",
-        "WL-AB/RR", "WL-AB/GPR",
-        "WL-AD/RR","WL-AD/GPR"
+        "RR/ECFP","GPR/ECFP",
+        "RR/WL-A", "GPR/WL-A",
+        "RR/WL-AB", "GPR/WL-AB",
+        "RR/WL-AD","GPR/WL-AD"
         ]
 
     color = [
+        "gray","black",
         "orange","blue",
         "crimson","cyan",
         "gray","black"
         ]
 
     markers = [
+        "o","s",
         "^","D",
         "v","s",
         "o","p"]
 
-    plots = [scatter_plot() for elec_prop in ["BG","EA","IP"]]
-    notation = ["(D)","(E)","(F)"]
+    if d == 0:
+        plots = [scatter_plot(nrows = 1, ncols = 3, figsize = (18,4.5))] + [
+            scatter_plot(nrows = 1, ncols = 3, figsize = (18,4))
+            for i in range(len(elec_prop_list)-1)]
+    else:
+        plots = [
+            scatter_plot(nrows = 1, ncols = 3, figsize = (18,4))
+            for i in range(len(elec_prop_list))]
 
-    shifted = [0.02,-0.01,-0.02,0.01,0.02,-0.02]
+    notation = [
+        "(A)","(B)","(C)",
+        "(D)","(E)","(F)",
+        "(G)","(H)","(I)"
+        ]
+
+    shifted = [0.02,-0.01,0.02,-0.01,-0.02,0.01,0.02,-0.02]
 
     for j,method in enumerate(method_list):
+        print(method)
+        num_iters = [0,1,2,3,4,5]
         if data == "mixed":
-            num_iters = [0,1,2,3,4,5]
-            if method == "WL-AB/GPR" : num_iters = [0,1,2]
-            if method == "WL-A/GPR" : num_iters = [0,1,2,3]
-            if method == "WL-AD/RR" : num_iters = [0,1,2,3]
-            if method == "WL-AD/GPR" : num_iters = [0,1,2]
+            if method == "GPR/WL-AB" : num_iters = [0,1,2]
+            elif method == "GPR/WL-A" : num_iters = [0,1,2,3]
+            elif method == "RR/WL-AD" : num_iters = [0,1,2,3]
+            elif method == "GPR/WL-AD" : num_iters = [0,1,2]
         elif data == "pah":
-            num_iters = [0,1,2,3,4,5]
-            if method == "WL-AB/GPR" : num_iters = [0,1,2]
-            if method == "WL-A/GPR" : num_iters = [0,1,2,3]
-            if method == "WL-AD/RR" : num_iters = [0,1,2,3]
-            if method == "WL-AD/GPR" : num_iters = [0,1,2]
+            if method == "GPR/WL-AB" : num_iters = [0,1,2]
+            if method == "GPR/WL-A" : num_iters = [0,1,2,3]
+            if method == "RR/WL-AD" : num_iters = [0,1,2,3]
+            if method == "GPR/WL-AD" : num_iters = [0,1,2]
         elif data == "subst":
-            num_iters = [0,1,2,3,4,5]
-            if method == "WL-AB/GPR" : num_iters = [0,1,2]
-            if method == "WL-A/GPR" : num_iters = [0,1,2,3]
-            if method == "WL-AD/RR" : num_iters = [0,1,2]
-            if method == "WL-AD/GPR" : num_iters = [0,1,2]
+            if method == "GPR/WL-AB" : num_iters = [0,1,2,3,4]
+            if method == "GPR/WL-A" : num_iters = [0,1,2,3,4]
+            if method == "RR/WL-AD" : num_iters = [0,1,2]
+            if method == "GPR/WL-AD" : num_iters = [0,1,2]
         for e,elec_prop in enumerate(elec_prop_list):
-            if j > 3:
-                pass
+
+            Y = result[e+j*len(elec_prop_list),:]
+            X = np.arange(len(Y)) if j <= 1 else np.array(num_iters)
+
+            if j <= 1:
+                n = len(Y)
+                subplot_idx = 0 
             else:
                 n = len(num_iters)
+                subplot_idx = j%2 + 1
 
-            plots[e].ax.errorbar(
-                np.array(num_iters[:n])+shifted[j],
-                result[e+j*len(elec_prop_list),:n],
+            Y = Y[:n]
+
+            plots[e].ax[subplot_idx].errorbar(
+                X + shifted[j], Y,
                 std[e+j*len(elec_prop_list),:n],
                 color = color[j],
                 elinewidth = 0.7,
@@ -99,24 +134,23 @@ for d,data in enumerate(["mixed","pah","subst"]):
                 )
 
             plots[e].add_plot(
-                num_iters[:n],
-                result[e+j*len(elec_prop_list),:n],
+                X, Y, idx = subplot_idx,
                 plot_line = True, label = method,
                 scatter_color = color[j], scatter_marker = markers[j],
                 line_color = color[j],
                 xticks_format = 0, # if e == 2 else -1,
-                yticks_format = -1, # if e == 2 else -1,
+                yticks_format = 2 if subplot_idx == 0 else -1,
                 x_major_tick = 1,
                 ylim = plot_lim_data[data][e],
                 xlabel = "Number of iterations" if d == 2 else None,
                 #ylabel = "RMSD for {} (eV)".format(elec_prop),
                 )
 
-            plots[e].ax.text(
+            plots[e].ax[subplot_idx].text(
                 0.95,0.95,
-                notation[d],
+                notation[d + subplot_idx*3],
                 ha='center', va='center', 
-                transform=plots[e].ax.transAxes,
+                transform=plots[e].ax[subplot_idx].transAxes,
                 **annotate
                 )
 
@@ -134,16 +168,18 @@ for d,data in enumerate(["mixed","pah","subst"]):
                 ylabel = "RMSD for {} (eV)".format(elec_prop),
                 xticks_format = 0, x_major_tick = 1,
                 )
+
             """
-            plots[e].ax.legend(
-                prop = font_legend,
-                loc="lower left",
-                bbox_to_anchor=(0,1.02,1,0.2),
-                mode="expand", borderaxespad=0,
-                ncol = 3
-                )
-        plots[e].save_fig("\\".join(path)+"\\[result]\\vs_num_iter_"+data+"_"+elec_prop+".jpeg")
-        print("fig saved at ", "\\".join(path)+"\\[result]\\vs_num_iter_"+data+"_"+elec_prop+".jpeg")
+            for subplot_idx in range(3):
+                plots[e].ax[subplot_idx].legend(
+                    prop = font_legend,
+                    loc="lower left",
+                    bbox_to_anchor=(0,1.02,1,0.2),
+                    mode="expand", borderaxespad=0,
+                    ncol = 3
+                    )
+        plots[e].save_fig("\\".join(path)+"\\vs_num_iter\\"+data+"_"+elec_prop+".jpeg")
+        print("fig saved at ", "\\".join(path)+"\\vs_num_iter\\"+data+"_"+elec_prop+".jpeg")
 
 
 

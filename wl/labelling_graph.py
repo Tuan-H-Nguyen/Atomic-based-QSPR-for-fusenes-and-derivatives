@@ -46,7 +46,7 @@ class WL:
                 atom_labels[idx] for idx in adj_atoms_indices]
             
             M = sorted(M)
-            M.insert(atom_labels[a1],0)
+            M.insert(0,atom_labels[a1])
             new_atomic_labels.append(
                 self.hash(M))
 
