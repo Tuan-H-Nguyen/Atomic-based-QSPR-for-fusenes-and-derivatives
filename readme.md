@@ -27,7 +27,7 @@ First of all, train the model using `main.py`.
 
 where:
 - `-k wla` : specified the kernel method, which is WL-A. Other keywords include
-  wlab, wlad, ...
+  subtree (alias for wla), wlab or edge, wlad or shortest\_path, ...
 - `-m gpr` : specified the regressor, which is Gaussian Process Regressor. Other
   keyword: rr, gpr_ (for GPR with linear kernel)
 - `-d mixed` : specified datasets, which is mixed datasets. Other kw: pah, subst.
@@ -39,6 +39,11 @@ where:
 - `-o 1` : specify 1 to saved error report. 0 for not saving anything
 - `-p 1` : specify 1 to saved models in pickle file. 0 for not saving anything
   
+With the last keywords, a pickle file with the name of
+`model_ensemble_[dataset_name]_[kernel_type]_[regressor].pkl`, e.g.
+`model_ensemble_mixed_subtree_gpr.pkl` will be generated. This file is used by
+the preditor to generate prediction. The path to this file can be modified by
+the variable `PATH_TO_PKL` in both `main.py` and `predictor.py`.  
 Then, use predictor to generate prediction:
 
     python predictor.py [smiles string] -m gpr -k wla -d mixed
