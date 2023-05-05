@@ -1,7 +1,7 @@
 import os, sys
 path = os.path.dirname(os.path.realpath(__file__)).split("\\")
-print("\\".join(path[:-1]))
-sys.path.append("\\".join(path[:-1]))
+print("\\".join(path[:-2]))
+sys.path.append("\\".join(path[:-2]))
 from copy import deepcopy
 import pickle
 

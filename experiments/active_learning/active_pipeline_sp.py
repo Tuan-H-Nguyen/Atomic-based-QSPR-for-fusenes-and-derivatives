@@ -2,6 +2,11 @@
 Active learning experiment for WL-AD/shortest path kernel model
 """
 
+import sys, os
+path = os.path.dirname(os.path.realpath(__file__)).split("\\")
+print("\\".join(path[:-2]))
+sys.path.append("\\".join(path[:-2]))
+
 import time
 import pickle
 import random
@@ -170,9 +175,9 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
 
     ###################################################################
 
-    pkl_path = path + "experiments\\active_learning\\pkl\\active_learning_"+ \
-        kernel_str+"_"+data_type+"_" +str(random_state) +".pkl"
+    pkl_path = "\\".join(path) + "\\pkl\\active_learning_"+kernel_str+"_"+data_type+"_" +str(random_state) +".pkl"
 
+    print(pkl_path)
     with open(pkl_path,"wb") as log:
         pickle.dump(result_dict,log)
 
