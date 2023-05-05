@@ -131,6 +131,9 @@ def graph_getter(train_set, test_set = None, sp = True):
     return train_graphs, test_graphs
 
 class ECFPVectorizer(BaseEstimator):
+    """
+    Vectorizer for Extended Connectivity Fingerprint method"
+    """
     def __init__(self,num_iter=None,len_fp = 1024):
         self.num_iter = num_iter
         self.len_fp = len_fp
@@ -284,8 +287,25 @@ def main_pipeline(
     num_iter,
     train_split,
     random_state,
-    elec_prop_list = ["BG","EA","IP"]
+    elec_prop_list = ["BG","EA","IP"],
+    return_model = False
     ):
+    """
+    The all-in-one pipeline for generating prediction
+    Args:
+        + model (str): "rr", "gpr"/"gpr_", or "linear"
+        + data_generator (ReducedData object from data\\data.py):
+        + vectorizing method (WLSubtree, WLEdge, or WLShortestPath class):
+        + num_iter (int): number of iterations
+        + train_split (float or int): size of the training set given in
+            percentage of the dataset or number of sample
+        + random_state (int): random seed
+        + elec_prop_list (list of str):
+
+    returns:
+        + list of RMSD on training set for all elec prop
+        + list of RMSD on test set for all elec prop
+    """
 
     train_set,test_set = data_splitter(data_generator,train_split,random_state)
     """
@@ -357,4 +377,7 @@ def main_pipeline(
         print("Train RMSD: {:.3f}eV".format(train_rmsd[i]))
         print("Test RMSD: {:.3f}eV".format(test_rmsd[i]))
 
-    return list(train_rmsd) + list(test_rmsd)
+    if return_model:
+        return list(train_rmsd) + list(test_rmsd), pipeline
+    else:
+        return list(train_rmsd) + list(test_rmsd)

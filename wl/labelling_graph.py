@@ -14,14 +14,19 @@ from sklearn.base import BaseEstimator
 from molecular_graph.smiles import smiles2graph
 
 class WL:
+    """
+    Base class for Weisfeiler-Lehman labelling graph
+    """
     def __init__(
         self,
         nodes_feat, adj, 
         edges = None, edges_feats = None
         ):
 
-        #initiate labels for each node by hashing a list of it properties.
+        """initiate labels for each node by hashing a list of it properties."""
         self.adj = adj
+
+        # atom_labels for storing all labels lists across all iterations
         self.atom_labels = [[
             self.hash(feat) for feat in nodes_feat]]
 
@@ -34,25 +39,41 @@ class WL:
         return hash_int
 
     def get_adj(self,atom_idx):
+        """
+        Return adjcent atoms' indices
+        """
         return self.adj[atom_idx]
 
     def relabelling_nodes(self):
         atom_labels = self.atom_labels[-1]
         new_atomic_labels = []
-
+        """
+        Essentially perform one iteration of WL algorithm.
+        After this function is called, a new set of labels will
+            be appended to self.atom_labels
+        """
         for a1,atom_label in enumerate(atom_labels):
+            # get adjacent atoms' indices
             adj_atoms_indices = self.get_adj(a1)
+
+            # put adjacent atoms' labels into a list and sort it 
             M = [
                 atom_labels[idx] for idx in adj_atoms_indices]
-            
             M = sorted(M)
+
+            # insert label of the main atom into the beginning
             M.insert(0,atom_labels[a1])
+
+            # hash and insert the new label into the list
             new_atomic_labels.append(
                 self.hash(M))
 
         self.atom_labels.append(new_atomic_labels)
 
 class WLSubtree(WL):
+    """
+    Class for Weisfeiler-Lehman Subtree of Atom-based method
+    """
     def __init__(self, nodes,adj, edges=None, edges_feats=None,sp_dists=None):
         super().__init__(nodes,adj)
 

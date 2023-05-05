@@ -63,9 +63,9 @@ def merge_image3(image1, image2,image3,open_img = True):
     result_height = height1 + height2 + height3
 
     result = Image.new('RGB', (result_width, result_height),color = 'white')
-    result.paste(im=image1, box=(0, 0))
-    result.paste(im=image2, box=(0, height1))
-    result.paste(im=image3, box=(0, height1 + height2))
+    result.paste(im=image1, box=(result_width - width1, 0))
+    result.paste(im=image2, box=(result_width - width2, height1))
+    result.paste(im=image3, box=(result_width - width3, height1 + height2))
     return result
 	
 merge_image3(

@@ -5,6 +5,9 @@ import pandas as pd
 import glob
 
 def get_total_data(data_type, prefix_path = "", dropna = True):
+    """
+    Get all data of PAH, thienoacenes, cyano-PAH and nitro-PAH
+    """
     data_list = [        
             pd.read_csv(prefix_path + "raw_cyano_data.csv"),
             pd.read_csv(prefix_path + "raw_nitro_data.csv"),
@@ -43,6 +46,15 @@ def S_count(smiles):
 
 intervals = [1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0]
 class ReducedData:
+    """
+    Provide balance datasets
+    Args:
+        + subst_only: provide True to get substituted PAH dataset,
+            provide False to get mixed or PAH dataset
+        + pah_ only:  provide True to get PAH dataset
+            provide False to get mixed or substituted PAH dataset
+        note: if both arguments are False, a mixed dataset will be returned
+    """
     def __init__(
         self,N,seed, path = "",
         subst_only = False,
@@ -53,17 +65,18 @@ class ReducedData:
         self.seed_list = np.random.randint(0,1e6,N)
         self.n = 0
 
-        cyano_path = path +"/raw_cyano_data.csv"
+        cyano_path = path +"\\raw_cyano_data.csv"
         try: self.cyano_data = pd.read_csv(cyano_path).dropna()
         except FileNotFoundError:
-            print(os.getcwd())
+            print(cyano_path)
             path = input("The provided path is not found. New path to data?")
             cyano_path = path +"/raw_cyano_data.csv"
+            self.cyano_data = pd.read_csv(cyano_path).dropna()
 
-        nitro_path = path +"/raw_nitro_data.csv"
+        nitro_path = path +"\\raw_nitro_data.csv"
         self.nitro_data = pd.read_csv(nitro_path).dropna()
 
-        pah_path = path +"/raw_pah_data.csv"
+        pah_path = path +"\\raw_pah_data.csv"
         self.pah_data = pd.read_csv(pah_path).dropna()
 
         assert not (subst_only and pah_only)

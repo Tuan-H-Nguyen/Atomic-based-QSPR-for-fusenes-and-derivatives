@@ -1,3 +1,6 @@
+PATH_TO_PKL = ""
+
+import pickle
 import argparse
 import numpy as np
 import pandas as pd
@@ -23,8 +26,9 @@ parser.add_argument(
     default = "krr")
 parser.add_argument(
     "-k","--kernel",
-    help = "WL kernel type. Choice: subtree, edge, shortest_path. Alternatively, choose ecfp for ECFP fingerprint",
-    type = str, choices = ["subtree", "edge", "shortest_path","ecfp"],
+    help = "WL kernel type. Choice: subtree/wla, edge/wlab, shortest_path/wlad.\
+    Alternatively, choose ecfp for ECFP fingerprint. Default is subtree/wla",
+    type = str, choices = ["wla","subtree", "edge", "wlab", "shortest_path", "wlad", "ecfp"],
     default = "subtree")
 parser.add_argument(
     "-d","--data", 
@@ -44,15 +48,24 @@ parser.add_argument(
     help = "Random seed", type = int, default = 2022)
 parser.add_argument(
     "-o", "--output",
-    help = "Write the result to output file", type = bool, default = False)
+    help = "Write the result to output file, which can be used for plotting box plots of RMSDs",
+    type = bool, default = False)
+
+parser.add_argument(
+    "-p", "--pkl_model",
+    help = """
+        Pickle model. The pickled file will be saved at the path specified by the variable 
+        PATH_TO_PKL at the beginning of the file. WARNING: Large file size
+    """,
+    type = bool, default = False)
 
 args = parser.parse_args()
 
-if args.kernel == "subtree":
+if args.kernel == "subtree" or args.kernel == "wla":
    wl_labelling_method = WLSubtree
-elif args.kernel == "edge":
+elif args.kernel == "edge" or args.kernel == "wlab" :
    wl_labelling_method = WLEdge
-elif args.kernel == "shortest_path":
+elif args.kernel == "shortest_path" or args.kernel == "wlad" :
    wl_labelling_method = WLShortestPath
 else:
     assert args.kernel == "ecfp"
@@ -62,17 +75,23 @@ data_generator = data_selector(args.data,"data",args.random_state)
 
 print(args.num_iter)
 all_rmsd = []
+
+model_ensemble = []
+
 for i in range(args.N):
-    rmsd = main_pipeline(
+    rmsd, model = main_pipeline(
         model = args.model, 
         vectorizing_method = wl_labelling_method,
         num_iter = args.num_iter,
         data_generator = data_generator,
         train_split = args.train_split,
-        random_state = args.random_state
+        random_state = args.random_state,
+        return_model = True
         )
 
     all_rmsd.append(rmsd)
+
+    model_ensemble.append(model)
 
 elec_prop_list = ["BG","EA","IP"]
 avg_rmsd = np.mean(all_rmsd,axis= 0)
@@ -88,10 +107,13 @@ for i,error in enumerate(["Train error", "Test error"]):
 
     if args.output:
         np.savetxt(
-            "s_"+ args.data + "_" + args.kernel + "_" + args.model \
-            + "_" + str(args.random_state) + ".txt",
+            "s_"+ args.data + "_" + args.kernel + "_" + args.model + "_" + str(args.random_state) + ".txt",
             np.array(all_rmsd))
-
+        
+    if args.pkl_model:
+        pkl_path = "model_ensemble_"+ args.data + "_" + args.kernel + "_" + args.model + ".pkl"
+        with open(pkl_path,"wb") as handle:
+            pickle.dump(model_ensemble,handle)
 
 
 

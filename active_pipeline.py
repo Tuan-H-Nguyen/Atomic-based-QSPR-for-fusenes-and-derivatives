@@ -43,15 +43,18 @@ def learning(
 
     for run in range(repeat):
         start = time.time()
+        #initiate the model pipeline
         pipeline = Pipeline(
             vectorizing_method = kernel, 
             gv_param_grid = {"num_iter":num_iter},
             regressor = model,
             r_param_grid = r_param_grid)
 
+        #train test split
         train_set, test_set = data_splitter(
             data_generator, initial_split*final_split, random_state)
 
+        #convert molecular data to graph
         train_graphs, test_graphs = graph_getter(train_set,test_set)
 
         final_train_size = int(final_split*(len(train_graphs)+len(test_graphs)))
@@ -66,20 +69,20 @@ def learning(
 
         while len(train_graphs) < final_train_size:
             start = time.time()
-            # 1 train model
+            # 1 train model on current training set
             pipeline.fit(train_graphs,train_Y)
 
-            # 2 predict and calculate the standard deviation
+            # 2 predict and calculate the standard deviation on the test set
             test_Y_hat,Y_std = pipeline.predict(
                 test_graphs,return_std = True)
-            # for each compound, take the maximum value of STD out of 
-            # three values for three properties
+
+            # for each compound, take the maximum value of STDs
+            # for three properties for each compound
             Y_std = np.max(Y_std,axis = 1)
 
             #store the RMSD and training set size
             rmsd = RMSD(test_Y_hat,test_Y)
             RMSD_list.append(rmsd)
-
             train_len_list.append(len(train_graphs))
 
             sampling_steps = final_train_size - len(train_graphs)
@@ -116,6 +119,11 @@ def learning(
     return train_len_list, all_RMSD_list
 
 def active_learning_pkl(kernel_str, data_type, repeat, random_state):
+    """
+    Driver function for performing testing models' errors versus training set size 
+    for active learning protocol and random augmentation. This function store result 
+    in a pkl file
+    """
     start = time.time()
     result_dict = {
         "train_set_size":[],
@@ -183,7 +191,10 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
 
     ###################################################################
 
-    with open("experiments\\active_learning_"+kernel_str+"_"+data_type+"_" +str(random_state) +".pkl","wb") as log:
+    pkl_path = path + "experiments\\active_learning\\pkl\\active_learning_"+ \
+        kernel_str+"_"+data_type+"_" +str(random_state) +".pkl"
+
+    with open(pkl_path,"wb") as log:
         pickle.dump(result_dict,log)
 
 repeat = input("number of repetitions?")

@@ -8,7 +8,6 @@ from matplotlib.legend_handler import HandlerLine2D, HandlerTuple
 
 #plt font initialize
 annotate = {'fontname':'Times New Roman','weight':'bold','size':13}
-tick = {'fontname':'Times New Roman','size':13}
 font = FontProperties()
 font.set_weight('bold')
 font_legend = font_manager.FontProperties(family = 'Times New Roman',size = 12)
@@ -87,8 +86,21 @@ class scatter_plot:
         label =None,
         line_label = None,
         equal_aspect = False,
-        tick_color = None
+        tick_color = None,
+        custom_tick = None,
+        custom_annotate = None
         ):
+
+        if custom_tick is not None: 
+            tick = custom_tick
+        else:
+            tick = {'fontname':'Times New Roman','size':13}
+
+        if custom_annotate is not None: 
+            annotate = custom_annotate
+        else:
+            annotate = {'fontname':'Times New Roman','weight':'bold','size':13}
+
         if second_ax == False:
             ax = self.ax
         else:

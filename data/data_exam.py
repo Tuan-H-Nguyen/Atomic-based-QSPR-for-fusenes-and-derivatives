@@ -1,8 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from data import ReducedData
 
-total_data = ReducedData(1,1)
+import sys, os
+path = os.path.dirname(os.path.realpath(__file__))
+lib_path = path.split("\\")
+data_path = "\\".join(lib_path[:-1])
+
+annotate = {'fontname':'Times New Roman','weight':'bold','size':13}
+
+total_data = ReducedData(1,1, path = data_path + "\\sample_DATA")
 total_data = total_data()
 
 def cn_filter(smiles_list):
@@ -69,6 +77,7 @@ num_s = s_filter(smiles_list)
 
 list_of_no_rings = no_rings(smiles_list)
 
+"""
 plt.hist(list_of_no_rings, bins = [3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5])
 
 plt.title("A. Histogram of distribution of number of rings of the dataset.")
@@ -79,7 +88,27 @@ plt.ylabel("Number of samples (samples)")
 
 plt.savefig("data_hist.jpeg",dpi=600)
 
+"""
+
+"""
+Initializing and setting subplots
+"""
+# fig size = 32
+# y_gap = 2
+# x_gap = 20
+# grid size = 72
+fig = plt.figure(figsize = (12,11))
+
+gs = gridspec.GridSpec(66,84)
+
+#fig,ax = plt.subplots(2,2,figsize = (12,8))
+
+#ax[0][1].axis("off")
+
+
+"""
 ### Pie chart for all
+"""
 no2 = sum(no2_dist.values())
 cn = sum(cn_dist.values())
 total = len(total_data)
@@ -103,16 +132,20 @@ n = len(labels)
 labels += ["Thienoacenes", "PAH"]
 explode_list += [0.0,0.04]
 
-fig,ax = plt.subplots()
-
-ax.pie(sizes,explode = explode_list,labels = labels,autopct="%1.1f%%")
+ax = fig.add_subplot(gs[:32,26:58])
+ax.pie(sizes[::-1],explode = explode_list[::-1],labels = labels[::-1] ,autopct="%1.f%%")
 
 print(total)
-ax.set_title("A. Distribution of the mixed dataset")
-fig.savefig("data_pie_all.jpeg",bbox_inches = "tight",dpi=600)
+ax.set_title("A. Distribution of the mixed dataset", 
+    bbox = dict(edgecolor = "black", facecolor = "none" ),
+    **annotate)
 
+#fig.savefig(path + "\\plot\\data_pie_all.jpeg",bbox_inches = "tight",dpi=600)
+
+"""
 ### Pie chart for the distribution of pah
-total_data = ReducedData(1,1,subst_only = False, pah_only = True)
+"""
+total_data = ReducedData(1,1,subst_only = False, pah_only = True, path = data_path + "\\sample_DATA")
 total_data = total_data()
 
 smiles_list = list(total_data.loc[:,"smiles"])
@@ -128,15 +161,21 @@ sizes = [
 
 labels = ["1-thiophene\n thienoacenes","2-thiophene\n Thienoacenes", "PAH"]
 
-fig,ax = plt.subplots()
+#fig,ax = plt.subplots()
 
+ax = fig.add_subplot(gs[34:, :32])
 ax.pie(sizes,labels = labels,autopct="%1.1f%%")
 
+ax.set_title("B. Distribution of the PAH dataset",
+    bbox = dict(edgecolor = "black", facecolor = "none" ),
+     **annotate)
+#fig.savefig(path + "\\plot\\data_pie_pah.jpeg",bbox_inches = "tight",dpi=600)
 
-ax.set_title("B. Distribution of the PAH dataset")
-fig.savefig("data_pie_pah.jpeg",bbox_inches = "tight",dpi=600)
+"""
 ### Pie chart for the distribution of substituent
-total_data = ReducedData(1,1,subst_only = True)
+"""
+
+total_data = ReducedData(1,1,subst_only = True, path = data_path + "\\sample_DATA")
 total_data = total_data()
 
 smiles_list = list(total_data.loc[:,"smiles"])
@@ -158,13 +197,18 @@ n = len(labels)
 
 labels += ["{:.0f}-CN-group(s) PAHs".format(k) for k in cn_dist.keys()]
 
-fig,ax = plt.subplots()
+#fig,ax = plt.subplots()
 
+ax = fig.add_subplot(gs[34:,52:])
 ax.pie(sizes,labels = labels,autopct="%1.1f%%")
 
-ax.set_title("C. Distribution of the substituted PAH dataset")
+ax.set_title(
+    "C. Distribution of the substituted PAH dataset", 
+    bbox = dict(edgecolor = "black", facecolor = "none" ), **annotate)
 
-fig.savefig("data_pie_subst.jpeg",bbox_inches = "tight",dpi=600)
+#fig.savefig(path + "\\plot\\data_pie_subst.jpeg",bbox_inches = "tight",dpi=600)
+#plt.show()
+fig.savefig(path + "\\plot\\data_pie_all.jpeg",bbox_inches = "tight",dpi=600)
 
 """
 ### Pie chart for the distribution of CN
