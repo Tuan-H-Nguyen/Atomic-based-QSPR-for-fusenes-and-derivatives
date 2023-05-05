@@ -39,8 +39,10 @@ where:
 - `-o 1` : specify 1 to saved error report. 0 for not saving anything
 - `-p 1` : specify 1 to saved models in pickle file. 0 for not saving anything
   
-With the last keywords, a pickle file will be generated with the name of
+With the last keywords, a pickle file will be generated with the name of 
+
     model_ensemble_[dataset_name]_[kernel_type]_[regressor].pkl
+
 e.g. `model_ensemble_mixed_subtree_gpr.pkl`. This file is used by the preditor
 to generate prediction. The path to this file can be modified by
 the variable `PATH_TO_PKL` in both `main.py` and `predictor.py`.  
