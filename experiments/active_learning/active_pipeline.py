@@ -23,7 +23,7 @@ from sklearn.decomposition import PCA, TruncatedSVD
 from rdkit.Chem import MolFromSmiles, MolToSmiles
 
 from molecular_graph.smiles import smiles2graph
-from data.data import ReducedData, stratified_sampling
+from data.data import ReducedData, stratified_sampling, DEFAULT_PATH
 #from utils.criterion import RMSD
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
@@ -67,7 +67,9 @@ def learning(
         RMSD_list = []
         train_len_list = []
 
-        elec_props_list = ["BG"]
+        elec_props_list = ["BG",
+            "EA","IP"
+            ]
 
         train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
         test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
@@ -167,7 +169,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
             num_iter = [1,2]
             #num_iter = [2]
 
-    data_generator = data_selector(data_type, "data",random_state)
+    data_generator = data_selector(data_type, DEFAULT_PATH + "\\data",random_state)
     if kernel_str == "subtree":
         kernel = WLSubtree
     elif kernel_str == "edge":

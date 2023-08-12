@@ -4,6 +4,12 @@ import numpy as np
 import pandas as pd
 import glob
 
+import os
+import sys
+
+DEFAULT_PATH = os.getcwd().split("\\")
+DEFAULT_PATH = "\\".join(DEFAULT_PATH[:DEFAULT_PATH.index("MLmodel") + 1])
+
 def get_total_data(data_type, prefix_path = "", dropna = True):
     """
     Get all data of PAH, thienoacenes, cyano-PAH and nitro-PAH
@@ -56,7 +62,7 @@ class ReducedData:
         note: if both arguments are False, a mixed dataset will be returned
     """
     def __init__(
-        self,N,seed, path = "",
+        self,N,seed, path = DEFAULT_PATH,
         subst_only = False,
         pah_only = False
         ):

@@ -59,6 +59,13 @@ parser.add_argument(
     """,
     type = bool, default = False)
 
+parser.add_argument(
+    "-plot", "--parity_plot",
+    help = """
+        parity plot
+    """,
+    type = bool, default = False)
+
 args = parser.parse_args()
 
 if args.kernel == "subtree" or args.kernel == "wla":
@@ -75,21 +82,26 @@ data_generator = data_selector(args.data,"data",args.random_state)
 
 print(args.num_iter)
 all_rmsd = []
+all_test_r2 = []
 
 model_ensemble = []
 
 for i in range(args.N):
-    rmsd, model = main_pipeline(
+    rmsd, test_r2, model = main_pipeline(
         model = args.model, 
         vectorizing_method = wl_labelling_method,
         num_iter = args.num_iter,
         data_generator = data_generator,
         train_split = args.train_split,
         random_state = args.random_state,
-        return_model = True
+        return_model = True,
+        parity_plot_path = "experiments\\single_run_result\\plot\\parity_plot_" \
+            + args.data + "_" + args.kernel + "_" + args.model + ".jpeg"  
+            if args.parity_plot else None
         )
 
     all_rmsd.append(rmsd)
+    all_test_r2.append(test_r2)
 
     model_ensemble.append(model)
 
@@ -110,6 +122,10 @@ for i,error in enumerate(["Train error", "Test error"]):
             "s_"+ args.data + "_" + args.kernel + "_" + args.model + "_" + str(args.random_state) + ".txt",
             np.array(all_rmsd))
         
+        np.savetxt(
+            "s_r2_"+ args.data + "_" + args.kernel + "_" + args.model + "_" + str(args.random_state) + ".txt",
+            np.array(all_test_r2))
+
     if args.pkl_model:
         pkl_path = "model_ensemble_"+ args.data + "_" + args.kernel + "_" + args.model + ".pkl"
         with open(pkl_path,"wb") as handle:

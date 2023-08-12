@@ -12,12 +12,17 @@ from models.gpr import ModGaussianProcessRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.decomposition import PCA, TruncatedSVD
 
+from sklearn.metrics import r2_score
+
 from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
 from rdkit.Chem import MolFromSmiles, MolToSmiles
 
 from molecular_graph.smiles import smiles2graph
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
+
+from utils.plot_utility_v2 import scatter_plot, font_legend, annotate
+from utils.Im_stitch import merge_image2, merge_image3
 
 try:
     from data.data import ReducedData, stratified_sampling
@@ -288,7 +293,8 @@ def main_pipeline(
     train_split,
     random_state,
     elec_prop_list = ["BG","EA","IP"],
-    return_model = False
+    return_model = False,
+    parity_plot_path = None
     ):
     """
     The all-in-one pipeline for generating prediction
@@ -367,6 +373,36 @@ def main_pipeline(
     test_Y_hat = pipeline.predict(test_graphs)
     test_rmsd = RMSD(test_Y_hat, test_Y)
 
+    test_r2 = []
+    for i, elec_prop in enumerate(elec_prop_list):
+        _test_Y_hat  = test_Y_hat[:,i]
+        _test_Y  = test_Y[:,i]
+        test_r2.append(r2_score(_test_Y_hat, _test_Y))
+
+    parity_plot = scatter_plot(3,1,(4,12))
+    if parity_plot_path:
+        for i, elec_prop in enumerate(elec_prop_list):
+            _test_Y_hat  = test_Y_hat[:,i]
+            _test_Y  = test_Y[:,i]
+
+            bound = (
+                min(_test_Y_hat.min(), _test_Y.min() - 0.5),
+                max(_test_Y_hat.max(), _test_Y.max() + 0.5)
+                )
+
+            parity_plot.add_plot(
+                _test_Y_hat, _test_Y, idx = i,
+                equal_aspect = True,
+                xlim = bound, ylim = bound
+                )
+
+            parity_plot.ax[i].plot([0, 1], [0, 1], 
+                color = "black",lw=1 ,transform= parity_plot.ax[i].transAxes)
+
+            parity_plot.add_text2(0.7, 0.1, "R$^2$ = {:.2f}".format(test_r2[i]),idx = i)
+
+    parity_plot.save_fig(parity_plot_path, dpi = 600)
+
     for i,elec_prop in enumerate(elec_prop_list):
         print("""
             ##########
@@ -378,6 +414,6 @@ def main_pipeline(
         print("Test RMSD: {:.3f}eV".format(test_rmsd[i]))
 
     if return_model:
-        return list(train_rmsd) + list(test_rmsd), pipeline
+        return list(train_rmsd) + list(test_rmsd), test_r2, pipeline
     else:
-        return list(train_rmsd) + list(test_rmsd)
+        return list(train_rmsd) + list(test_rmsd), test_r2
