@@ -1,7 +1,3 @@
-"""
-Active learning experiment for WL-AD/shortest path kernel model
-"""
-
 import sys, os
 path = os.path.dirname(os.path.realpath(__file__)).split("\\")
 print("\\".join(path[:-2]))
@@ -27,7 +23,7 @@ from sklearn.decomposition import PCA, TruncatedSVD
 from rdkit.Chem import MolFromSmiles, MolToSmiles
 
 from molecular_graph.smiles import smiles2graph
-from data.data import ReducedData, stratified_sampling
+from data.data import ReducedData, stratified_sampling, DEFAULT_PATH
 #from utils.criterion import RMSD
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
@@ -52,15 +48,18 @@ def learning(
 
     for run in range(repeat):
         start = time.time()
+        #initiate the model pipeline
         pipeline = Pipeline(
             vectorizing_method = kernel, 
             gv_param_grid = {"num_iter":num_iter},
             regressor = model,
             r_param_grid = r_param_grid)
 
+        #train test split
         train_set, test_set = data_splitter(
             data_generator, initial_split*final_split, random_state)
 
+        #convert molecular data to graph
         train_graphs, test_graphs = graph_getter(train_set,test_set)
 
         final_train_size = int(final_split*(len(train_graphs)+len(test_graphs)))
@@ -68,27 +67,29 @@ def learning(
         RMSD_list = []
         train_len_list = []
 
-        elec_props_list = ["BG", "EA", "IP"]
+        elec_props_list = ["BG",
+            "EA","IP"
+            ]
 
         train_Y = np.array(train_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
         test_Y = np.array(test_set.loc[:,elec_props_list]).reshape(-1,len(elec_props_list))
 
         while len(train_graphs) < final_train_size:
             start = time.time()
-            # 1 train model
+            # 1 train model on current training set
             pipeline.fit(train_graphs,train_Y)
 
-            # 2 predict and calculate the standard deviation
+            # 2 predict and calculate the standard deviation on the test set
             test_Y_hat,Y_std = pipeline.predict(
                 test_graphs,return_std = True)
-            # for each compound, take the maximum value of STD out of 
-            # three values for three properties
+
+            # for each compound, take the maximum value of STDs
+            # for three properties for each compound
             Y_std = np.max(Y_std,axis = 1)
 
             #store the RMSD and training set size
             rmsd = RMSD(test_Y_hat,test_Y)
             RMSD_list.append(rmsd)
-
             train_len_list.append(len(train_graphs))
 
             sampling_steps = final_train_size - len(train_graphs)
@@ -125,6 +126,11 @@ def learning(
     return train_len_list, all_RMSD_list
 
 def active_learning_pkl(kernel_str, data_type, repeat, random_state):
+    """
+    Driver function for performing testing models' errors versus training set size 
+    for active learning protocol and random augmentation. This function store result 
+    in a pkl file
+    """
     start = time.time()
     result_dict = {
         "train_set_size":[],
@@ -132,25 +138,42 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         "random": []
         }
 
-    model, hyperp = model_getter("gpr_")
+    model, hyperp = model_getter("gpr")
     initial_split = 0.2
     final_split = 0.7
     number_sampling = 50
     if data_type == "subst":
         steps = int( 887*final_split*(1-initial_split) / number_sampling )
-        num_iter = [0,1,2]
+        if kernel_str == "subtree":
+            num_iter = [1,2]
+            #num_iter = [2]
+            hyperp["alpha"].remove(5e-2)
+        elif kernel_str == "edge":
+            num_iter = [1,2]
+            #hyperp["alpha"].remove(5e-2)
 
     elif data_type == "pah":
         steps = int( 248*final_split*(1-initial_split) / number_sampling )
-        num_iter = [0,1,2]
+        if kernel_str == "subtree":
+            num_iter = [0,1,2,3,4]
+            #num_iter = [2,3]
+        elif kernel_str == "edge":
+            num_iter = [0,1,2]
 
     elif data_type == "mixed":
         steps = int( 425*final_split*(1-initial_split) / number_sampling )
-        num_iter = [0,1]
+        if kernel_str == "subtree":
+            num_iter = [1,2]
+            #num_iter = [2]
+        elif kernel_str == "edge":
+            num_iter = [1,2]
+            #num_iter = [2]
 
-    data_generator = data_selector(data_type, "data",random_state)
-    if kernel_str == "shortest_path":
-        kernel = WLShortestPath
+    data_generator = data_selector(data_type, DEFAULT_PATH + "\\data",random_state)
+    if kernel_str == "subtree":
+        kernel = WLSubtree
+    elif kernel_str == "edge":
+        kernel = WLEdge
     else:
         raise Exception("")
     ###################################################################
@@ -191,7 +214,7 @@ random_state = int(input("random state?"))
 
 if not kernel_str and not data_type:
     print("assess active learning for all models on all dataset")
-    for kernel_str in ["shortest_path"]:
+    for kernel_str in ["subtree","edge"]:
         print("kernel_str: ", kernel_str)
         for data_type in ["mixed","pah","subst"]:
             print("data_type: ", data_type)
