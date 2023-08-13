@@ -137,7 +137,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
     model, hyperp = model_getter("gpr_")
     initial_split = 0.2
     final_split = 0.7
-    number_sampling = 50
+    number_sampling = 30
     if data_type == "subst":
         steps = int( 887*final_split*(1-initial_split) / number_sampling )
         num_iter = [0,1,2]
