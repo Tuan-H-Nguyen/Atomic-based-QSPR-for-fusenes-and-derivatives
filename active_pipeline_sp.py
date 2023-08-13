@@ -120,6 +120,8 @@ def learning(
 
                 Y_std = np.delete(Y_std ,new_id , 0)
 
+        RMSD_list = np.vstack(RMSD_list)
+        #print(RMSD_list)
         all_RMSD_list.append(RMSD_list)
 
     return train_len_list, all_RMSD_list
@@ -160,7 +162,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         repeat = repeat, steps = steps, 
         active = True)
     result_dict["train_set_size"] = train_len_list
-    result_dict["active"].append(RMSD_list)
+    result_dict["active"] = RMSD_list
 
     print(time.time() - start)
 
@@ -171,7 +173,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
         kernel = kernel, model = model, r_param_grid = hyperp ,num_iter = num_iter,
         repeat = repeat, steps = steps, 
         active = False)
-    result_dict["random"].append(RMSD_list)
+    result_dict["random"] = RMSD_list
 
     ###################################################################
 
