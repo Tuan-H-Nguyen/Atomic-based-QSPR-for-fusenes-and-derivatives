@@ -73,18 +73,18 @@ class ReducedData:
         self.seed_list = np.random.randint(0,1e6,N)
         self.n = 0
 
-        cyano_path = path +"\\raw_cyano_data.csv"
+        cyano_path = path +"/raw_cyano_data.csv"
         try: self.cyano_data = pd.read_csv(cyano_path).dropna()
         except FileNotFoundError:
             print(cyano_path)
             path = input("The provided path is not found. New path to data?")
-            cyano_path = path +"\\raw_cyano_data.csv"
+            cyano_path = path +"/raw_cyano_data.csv"
             self.cyano_data = pd.read_csv(cyano_path).dropna()
 
-        nitro_path = path +"\\raw_nitro_data.csv"
+        nitro_path = path +"/raw_nitro_data.csv"
         self.nitro_data = pd.read_csv(nitro_path).dropna()
 
-        pah_path = path +"\\raw_pah_data.csv"
+        pah_path = path +"/raw_pah_data.csv"
         self.pah_data = pd.read_csv(pah_path).dropna()
 
         assert not (subst_only and pah_only)
