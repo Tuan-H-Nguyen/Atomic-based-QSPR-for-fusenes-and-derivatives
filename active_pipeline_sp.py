@@ -177,7 +177,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
 
     ###################################################################
 
-    pkl_path = "\\".join(path) + "\\pkl\\active_learning_"+kernel_str+"_"+data_type+"_" +str(random_state) +".pkl"
+    pkl_path = "active_learning_"+kernel_str+"_"+data_type+"_" +str(random_state) +".pkl"
 
     print(pkl_path)
     with open(pkl_path,"wb") as log:
