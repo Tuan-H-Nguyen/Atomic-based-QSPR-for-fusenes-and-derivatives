@@ -78,7 +78,7 @@ class ReducedData:
         except FileNotFoundError:
             print(cyano_path)
             path = input("The provided path is not found. New path to data?")
-            cyano_path = path +"/raw_cyano_data.csv"
+            cyano_path = path +"\\raw_cyano_data.csv"
             self.cyano_data = pd.read_csv(cyano_path).dropna()
 
         nitro_path = path +"\\raw_nitro_data.csv"

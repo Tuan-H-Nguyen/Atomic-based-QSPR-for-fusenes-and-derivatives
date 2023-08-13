@@ -171,7 +171,7 @@ def active_learning_pkl(kernel_str, data_type, repeat, random_state):
             num_iter = [1,2]
             #num_iter = [2]
 
-    data_generator = data_selector(data_type, DEFAULT_PATH + "\\data",random_state)
+    data_generator = data_selector(data_type, "data",random_state)
     if kernel_str == "subtree":
         kernel = WLSubtree
     elif kernel_str == "edge":
