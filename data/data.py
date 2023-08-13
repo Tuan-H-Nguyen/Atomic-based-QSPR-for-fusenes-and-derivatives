@@ -8,7 +8,9 @@ import os
 import sys
 
 DEFAULT_PATH = os.getcwd().split("\\")
-DEFAULT_PATH = "\\".join(DEFAULT_PATH[:DEFAULT_PATH.index("MLmodel") + 1])
+try:
+    DEFAULT_PATH = "\\".join(DEFAULT_PATH[:DEFAULT_PATH.index("data") + 1])
+except: DEFAULT_PATH = ""
 
 def get_total_data(data_type, prefix_path = "", dropna = True):
     """
