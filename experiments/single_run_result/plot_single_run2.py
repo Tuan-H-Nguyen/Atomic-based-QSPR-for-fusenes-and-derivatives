@@ -1,13 +1,14 @@
 import sys, os
 path = os.path.dirname(os.path.realpath(__file__)).split("\\")
-sys.path.append("\\".join(path[:-1]))
+#sys.path.append("\\".join(path[:-1]))
+sys.path.append("\\".join(path[:-2]))
 
 import numpy as np
 import matplotlib.pyplot as plt
 
 from utils.plot_utility_v2 import scatter_plot
 
-random_state = 315
+random_state = 2022
 elec_prop_list = ["BG","EA","IP"]
 elec_prop_full_list = [
     "Bandgap","EA","IP"
@@ -46,7 +47,10 @@ for e,prop in enumerate(elec_prop_list):
         for model in models_list:
             kernel, model = model
             test_result = np.loadtxt(
-                "\\".join(path) + "\\" + \
+                "\\".join(path) + "\\np_txt\\" + \
+                "s_"+ dataset + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt")
+
+            print("\\".join(path) + "\\np_txt\\" + \
                 "s_"+ dataset + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt")
 
             test_result = test_result[:,len(elec_prop_list):]
@@ -85,7 +89,7 @@ for e,prop in enumerate(elec_prop_list):
 
     plot.save_fig( 
         "\\".join(path) + "\\" + \
-        "single_run_result\\RR_"+prop+".jpeg")
+        "plot\\RR_"+prop+".jpeg")
 
 
 

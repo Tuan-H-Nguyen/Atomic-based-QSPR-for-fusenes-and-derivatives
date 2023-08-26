@@ -1,16 +1,16 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from data import ReducedData
+from data import get_total_data,ReducedData, DEFAULT_PATH
 
 import sys, os
 path = os.path.dirname(os.path.realpath(__file__))
 lib_path = path.split("\\")
-data_path = "\\".join(lib_path[:-1])
+data_path = DEFAULT_PATH #"\\".join(lib_path[:-1])
 
 annotate = {'fontname':'Times New Roman','weight':'bold','size':13}
 
-total_data = ReducedData(1,1, path = data_path + "\\sample_DATA")
+total_data = ReducedData(1,1, path = data_path)
 total_data = total_data()
 
 def cn_filter(smiles_list):
@@ -109,6 +109,11 @@ gs = gridspec.GridSpec(66,84)
 """
 ### Pie chart for all
 """
+print("""
+
+### MIXED DATASET ###
+
+""")
 no2 = sum(no2_dist.values())
 cn = sum(cn_dist.values())
 total = len(total_data)
@@ -125,12 +130,21 @@ labels = ["{:.0f}-NO$_2$-group(s) PAHs".format(k) for k in no2_dist.keys()]
 n = len(labels)
 explode_list += [0.04*i for i in range(n)]
 
+for k,v in no2_dist.items():
+    print("{:.0f}-NO$_2$-group(s) PAHs: # compounds = {}".format(k,v))
+
 labels +=["{:.0f}-CN-group(s) PAHs".format(k) for k in cn_dist.keys()]
 explode_list += [0.04*i for i in range(len(labels)-n)]
 n = len(labels)
 
+for k,v in cn_dist.items():
+    print("{:.0f}-CN-group(s) PAHs: # compounds = {}".format(k,v))
+
 labels += ["Thienoacenes", "PAH"]
 explode_list += [0.0,0.04]
+
+print("Number of thiophene = {}".format(num_s))
+print("Number of PAH = {}".format(total-cn-no2-num_s))
 
 ax = fig.add_subplot(gs[:32,26:58])
 ax.pie(sizes[::-1],explode = explode_list[::-1],labels = labels[::-1] ,autopct="%1.f%%")
@@ -145,7 +159,12 @@ ax.set_title("A. Distribution of the mixed dataset",
 """
 ### Pie chart for the distribution of pah
 """
-total_data = ReducedData(1,1,subst_only = False, pah_only = True, path = data_path + "\\sample_DATA")
+print("""
+
+### PAH DATASET ###
+
+""")
+total_data = ReducedData(1,1,subst_only = False, pah_only = True, path = data_path )
 total_data = total_data()
 
 smiles_list = list(total_data.loc[:,"smiles"])
@@ -163,6 +182,10 @@ labels = ["1-thiophene\n thienoacenes","2-thiophene\n Thienoacenes", "PAH"]
 
 #fig,ax = plt.subplots()
 
+print("Number of 1-thiophene = {}".format(num_s1))
+print("Number of 2-thiophene = {}".format(num_s2))
+print("Number of PAH = {}".format(total-num_s1-num_s2))
+
 ax = fig.add_subplot(gs[34:, :32])
 ax.pie(sizes,labels = labels,autopct="%1.1f%%")
 
@@ -174,8 +197,13 @@ ax.set_title("B. Distribution of the PAH dataset",
 """
 ### Pie chart for the distribution of substituent
 """
+print("""
 
-total_data = ReducedData(1,1,subst_only = True, path = data_path + "\\sample_DATA")
+###SUBSTITUENT DATASET###
+
+""")
+
+total_data = ReducedData(1,1,subst_only = True, path = data_path )
 total_data = total_data()
 
 smiles_list = list(total_data.loc[:,"smiles"])
@@ -197,6 +225,10 @@ n = len(labels)
 
 labels += ["{:.0f}-CN-group(s) PAHs".format(k) for k in cn_dist.keys()]
 
+for k,v in no2_dist.items():
+    print("{:.0f}-NO$_2$-group(s) PAHs: # compounds = {}".format(k,v))
+for k,v in cn_dist.items():
+    print("{:.0f}-CN-group(s) PAHs: # compounds = {}".format(k,v))
 #fig,ax = plt.subplots()
 
 ax = fig.add_subplot(gs[34:,52:])
@@ -221,3 +253,68 @@ ax.pie(sizes,labels = labels,autopct="%1.1f%%")
 
 fig.savefig("data_pie_cn.jpeg",bbox_inches = "tight",dpi=600)
 """
+
+"""
+### Pie chart for the distribution of unbalanced dataset
+"""
+print("""
+
+###ORIGINAL DATASET###
+
+""")
+total_data = get_total_data("mixed")
+print(len(total_data))
+
+smiles_list = list(total_data.loc[:,"smiles"])
+
+cn_dist = cn_filter(smiles_list)
+
+no2_dist = no2_filter(smiles_list)
+
+num_s = s_filter(smiles_list)
+
+list_of_no_rings = no_rings(smiles_list)
+
+no2 = sum(no2_dist.values())
+cn = sum(cn_dist.values())
+total = len(total_data)
+
+sizes = []
+labels = []
+
+sizes += [
+    num_s,
+    (total-cn-no2-num_s)]
+
+sizes += [v for v in cn_dist.values()]
+
+sizes += [no2_dist[i] for i in sorted(no2_dist.keys())]
+
+explode_list = []
+
+labels += ["Thienoacenes", "PAH"]
+explode_list += [0.0,0.04]
+
+print("Number of thiophene = {}".format(num_s))
+print("Number of PAH = {}".format(total-cn-no2-num_s))
+
+labels +=["{:.0f}-CN-group(s) PAHs".format(k) for k in cn_dist.keys()]
+n = len(labels)-2
+explode_list += [0.04*i for i in range(n)]
+
+for k,v in cn_dist.items():
+    print("{:.0f}-CN-group(s) PAHs: # compounds = {}".format(k,v))
+
+labels += ["{:.0f}-NO$_2$-group(s) PAHs".format(k) for k in sorted(no2_dist.keys())]
+explode_list += [0.04*i for i in range(len(labels)-n-2)]
+n = len(labels)
+
+for k,v in no2_dist.items():
+    print("{:.0f}-NO$_2$-group(s) PAHs: # compounds = {}".format(k,v))
+
+fig = plt.figure()
+
+ax = fig.add_subplot()
+
+ax.pie(sizes[:],explode = explode_list[:],labels = labels[:] ,autopct="%1.f%%")
+fig.savefig(path + "\\plot\\data_pie_unbalanced.jpeg",bbox_inches = "tight",dpi=600)

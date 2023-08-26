@@ -59,68 +59,72 @@ model = Pipeline(
     r_param_grid = {"alpha":[1e-2,0.1]}
     )
 
-### a for loop was initially here ###
-elec_prop = ["BG"]
+elec_props = ["BG", "EA", "IP"]
 
-train_Y = np.array(train_set.loc[:,elec_prop])
-test_Y = np.array(test_set.loc[:,elec_prop])
+train_Y = np.array(train_set.loc[:,elec_props])
+test_Y = np.array(test_set.loc[:,elec_props])
 
 model.fit(train_graphs,train_Y)
 
-re_coef = model.regressors[0].coef_ # 0 for BG
+Y_test_hat = model.predict(test_graphs)
+### a for loop was initially here ###
+for e, elec_prop in enumerate(elec_props):
+    #elec_prop = ["BG"] ; e = 0
+    test_Y_ = test_Y[:,e]
 
-Y_test_hat = model.predict(test_graphs).reshape(-1)
-test_rmsd =  np.sqrt(
-    (Y_test_hat - np.array(list(test_set.loc[:,"BG"])).reshape(-1))**2
-    )
+    re_coef = model.regressors[e].coef_ # 0 for BG
 
-explain_dict = dict(zip(
-    model.graph_vectorizers[0].unique_labels, #0 to get model for BG
-    re_coef.tolist()))
+    test_rmsd =  np.sqrt(
+        (Y_test_hat[:,e] - test_Y_)**2
+        )
 
-test_smiles = list(test_set.loc[:,"smiles"])
+    explain_dict = dict(zip(
+        model.graph_vectorizers[e].unique_labels, #0 to get model for BG
+        re_coef.tolist()))
 
-contributions_list = []
-unknown_label = 0
+    test_smiles = list(test_set.loc[:,"smiles"])
 
-for sample_no,sample in enumerate(test_smiles):
-    #if sample_no > 100: break
+    contributions_list = []
+    unknown_label = 0
 
-    node_feat, adj_list,edges_list, edges_feat, sp_dists = smiles2graph(sample,sp = True)
+    for sample_no,sample in enumerate(test_smiles):
+        #if sample_no > 100: break
 
-    wl_labelling = WLSubtree(node_feat, adj_list,edges_list, edges_feat, sp_dists)
+        node_feat, adj_list,edges_list, edges_feat, sp_dists = smiles2graph(sample,sp = True)
 
-    for _ in range(num_iter):
-        wl_labelling.relabelling_nodes()
+        wl_labelling = WLSubtree(node_feat, adj_list,edges_list, edges_feat, sp_dists)
 
-    contributions = np.zeros(len(node_feat))
-    """
-    The list of atoms' labels are according to the order of node_feat, which is generated
-    according to the order of mol.GetAtoms()
-    Therefore, the contributions list is the contribution of atoms (inferred via the linear 
-    regression coef) in the above order.
-    """
-    for label_set in wl_labelling.atom_labels:
-        for i,label in enumerate(label_set):
-            try:
-                """
-                contributions += np.array(
-                    [explain_dict[label] for label in label_set])
-                """
-                contributions[i] += explain_dict[label]
-            except KeyError:
-                unknown_label += 1
-                contributions[i] += 0
+        for _ in range(num_iter):
+            wl_labelling.relabelling_nodes()
 
-    contributions = list(contributions)
-    contributions_list.append(contributions)
+        contributions = np.zeros(len(node_feat))
+        """
+        The list of atoms' labels are according to the order of node_feat, which is generated
+        according to the order of mol.GetAtoms()
+        Therefore, the contributions list is the contribution of atoms (inferred via the linear 
+        regression coef) in the above order.
+        """
+        for label_set in wl_labelling.atom_labels:
+            for i,label in enumerate(label_set):
+                try:
+                    """
+                    contributions += np.array(
+                        [explain_dict[label] for label in label_set])
+                    """
+                    contributions[i] += explain_dict[label]
+                except KeyError:
+                    unknown_label += 1
+                    contributions[i] += 0
 
-result_dict.update({
-    "contributions_list":contributions_list,
-    "test_Y":test_Y,
-    "test_rmsd":test_rmsd,
-    "test_smiles":test_smiles
-    })
+        contributions = list(contributions)
+        contributions_list.append(contributions)
 
-with open("\\".join(path) + "\\"+data_type+"\\result.pkl","wb") as handle:
-    pickle.dump(result_dict, handle)
+    result_dict.update({
+        "contributions_list":contributions_list,
+        "test_Y":test_Y_,
+        "test_rmsd":test_rmsd,
+        "test_smiles":test_smiles
+        })
+
+    with open("\\".join(path) + "\\"+data_type+"\\result_" + elec_prop + ".pkl","wb") as handle:
+        pickle.dump(result_dict, handle)

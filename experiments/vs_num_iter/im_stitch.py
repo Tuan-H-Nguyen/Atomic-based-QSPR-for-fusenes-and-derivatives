@@ -69,6 +69,6 @@ def merge_image3(image1, image2,image3,open_img = True):
     return result
 	
 merge_image3(
-    path + "\\mixed_BG.jpeg",
-    path + "\\pah_BG.jpeg",
-    path + "\\subst_BG.jpeg").save(path + "\\BG.jpeg")
+    path + "\\plot\\mixed_BG.jpeg",
+    path + "\\plot\\pah_BG.jpeg",
+    path + "\\plot\\subst_BG.jpeg").save(path + "\\BG.jpeg")

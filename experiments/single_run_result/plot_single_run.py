@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 from utils.plot_utility_v2 import scatter_plot
 
-random_state = 315
+random_state = 2022
 elec_prop_list = ["BG","EA","IP"]
 elec_prop_full_list = [
     "Bandgap","EA","IP"
@@ -20,7 +20,7 @@ models_list = [
     ("ecfp", "gpr"),
     ("subtree", "gpr"),
     ("edge", "gpr"),
-    ("shortest_path", "gpr"),
+    ("shortest_path", "gpr_"),
 ]
 
 def name_exchange(model):
@@ -46,7 +46,8 @@ for e,prop in enumerate(elec_prop_list):
             kernel, model = model
             test_result = np.loadtxt(
                 "\\".join(path) + "\\np_txt\\" + \
-                "s_"+ dataset + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt")
+                "s_"+ dataset + "_" + kernel + "_" + model + "_" + str(random_state) + ".txt"
+                )
 
             test_result = test_result[:,len(elec_prop_list):]
 

@@ -294,7 +294,8 @@ def main_pipeline(
     random_state,
     elec_prop_list = ["BG","EA","IP"],
     return_model = False,
-    parity_plot_path = None
+    parity_plot_path = None,
+    parity_plot_label = "ABC"
     ):
     """
     The all-in-one pipeline for generating prediction
@@ -379,8 +380,15 @@ def main_pipeline(
         _test_Y  = test_Y[:,i]
         test_r2.append(r2_score(_test_Y_hat, _test_Y))
 
-    parity_plot = scatter_plot(3,1,(4,12))
+    parity_plot = scatter_plot(3,1,(5.5,16.5))
+    elec_prop_abbrev = {
+        "EA": "Electron Afinity",
+        "BG": "Band gap",
+        "IP": "Ionization Potential"
+    }
     if parity_plot_path:
+        labels_list = list(parity_plot_label)
+        assert len(parity_plot_label) == len(elec_prop_list)
         for i, elec_prop in enumerate(elec_prop_list):
             _test_Y_hat  = test_Y_hat[:,i]
             _test_Y  = test_Y[:,i]
@@ -391,17 +399,21 @@ def main_pipeline(
                 )
 
             parity_plot.add_plot(
-                _test_Y_hat, _test_Y, idx = i,
+                _test_Y, _test_Y_hat, idx = i,
                 equal_aspect = True,
-                xlim = bound, ylim = bound
+                xlim = bound, ylim = bound, 
+                xlabel = "Calculated {} (eV)".format(elec_prop_abbrev[elec_prop]),
+                ylabel = "QSPR prediction (eV)"
                 )
 
             parity_plot.ax[i].plot([0, 1], [0, 1], 
                 color = "black",lw=1 ,transform= parity_plot.ax[i].transAxes)
 
-            parity_plot.add_text2(0.7, 0.1, "R$^2$ = {:.2f}".format(test_r2[i]),idx = i)
+            parity_plot.add_text2(0.8, 0.05, "R$^2$ = {:.2f}".format(test_r2[i]),idx = i)
 
-    parity_plot.save_fig(parity_plot_path, dpi = 600)
+            parity_plot.add_text2(0.9, 0.15, "(" + parity_plot_label[i] + ")",idx = i)
+
+        parity_plot.save_fig(parity_plot_path, dpi = 600)
 
     for i,elec_prop in enumerate(elec_prop_list):
         print("""

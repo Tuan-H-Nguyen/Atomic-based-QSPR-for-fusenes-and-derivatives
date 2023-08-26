@@ -11,7 +11,7 @@ import time
 import numpy as np
 
 from molecular_graph.smiles import smiles2graph
-from data.data import ReducedData, stratified_sampling
+from data.data import ReducedData, stratified_sampling, DEFAULT_PATH
 from utils.criterion import RMSD
 from wl.labelling_graph import (WLSubtree, WLEdge, WLShortestPath, 
     GraphVectorizer, GraphHashVectorizer)
@@ -22,7 +22,7 @@ from utils.plot_utility_v3 import scatter_plot
 
 random_state = 2020
 data_generator = ReducedData(
-    N = 100, seed = random_state, path = "data",
+    N = 100, seed = random_state, path = DEFAULT_PATH,
     pah_only = False, subst_only = False)
 
 elec_prop = ["BG"]

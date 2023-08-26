@@ -63,6 +63,7 @@ for k,kernel_str in enumerate(["subtree","edge","shortest_path"]):
         std_random_result = np.std(random_result,axis=0)
         std_r.append(std_random_result)
 
+        """
         ir = best_index(mean_random_result)
 
         print("R: {:.3f}eV +/- {:.3f} at {:.2f} of the train set".format(
@@ -104,9 +105,14 @@ for k,kernel_str in enumerate(["subtree","edge","shortest_path"]):
             _train_set_sizes[ia]-_train_set_sizes[ir],
             (_train_set_sizes[ia]-_train_set_sizes[ir])/_train_set_sizes[-1],
             ))
-    for j,elec_prop in enumerate(["BG"]):
+        """
+    for j,elec_prop in enumerate(["BG","EA","IP"]):
+
+        ymax = np.max([np.max(error_a[i][:,j]) for i in range(3)]) + 0.05
+        ymin = np.min([np.min(error_a[i][:,j]) for i in range(3)]) - 0.05
+
         plot = scatter_plot(1,3,figsize = (16,4))
-        for i in range(3):
+        for i, dataset_type in enumerate(["mixed", "pah", "subst"]):
             X = np.array(train_set_sizes[i])*100/train_set_sizes[i][-1]
             plot.add_plot(
                 X, error_a[i][:,j],idx = i,
@@ -114,6 +120,10 @@ for k,kernel_str in enumerate(["subtree","edge","shortest_path"]):
                 plot_line = True, 
                 scatter_marker = ".",
                 scatter_color = "b", line_color = "b")
+
+            if elec_prop == "BG":
+                print(kernel_str + " " + dataset_type + " " + text[k][i])
+                print(error_a[i][:,j])
 
             plot.ax[i].fill_between(
                 X, 
@@ -135,7 +145,7 @@ for k,kernel_str in enumerate(["subtree","edge","shortest_path"]):
                 y_minor_tick = 0.01,
                 xlabel = "% of full-size training set"  if k == 2 else None,
                 ylabel = "Test RMSD for {} (eV)".format(elec_prop) if i == 0 else None,
-                ylim = (0.08,0.37) if k == 0 else (0.08,0.35)
+                ylim = (ymin,ymax) 
                 )
 
             plot.ax[i].fill_between(
@@ -158,8 +168,9 @@ for k,kernel_str in enumerate(["subtree","edge","shortest_path"]):
                 )
         plot.save_fig(path+"\\plot\\active_learning_"+kernel_str+"_"+elec_prop+".jpeg",dpi =600)
 
-path = os.path.dirname(os.path.realpath(__file__))
-foo = merge_image3(*[
-    path+"\\plot\\active_learning_"+kernel_str+"_"+"BG"+".jpeg" for kernel_str in ["subtree","edge","shortest_path"]])
-foo.save(
-        path+"\\plot\\active_learning.jpeg")
+for j,elec_prop in enumerate(["BG","EA","IP"]):
+    path = os.path.dirname(os.path.realpath(__file__))
+    foo = merge_image3(*[
+        path+"\\plot\\active_learning_"+kernel_str+"_"+elec_prop+".jpeg" for kernel_str in ["subtree","edge","shortest_path"]])
+    foo.save(
+            path+"\\plot\\active_learning_"+elec_prop+".jpeg")

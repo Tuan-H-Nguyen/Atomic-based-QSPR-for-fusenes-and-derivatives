@@ -8,18 +8,21 @@ import os
 import sys
 
 DEFAULT_PATH = os.getcwd().split("\\")
-try:
-    DEFAULT_PATH = "\\".join(DEFAULT_PATH[:DEFAULT_PATH.index("data") + 1])
-except: DEFAULT_PATH = ""
 
-def get_total_data(data_type, prefix_path = "", dropna = True):
+try:
+    DEFAULT_PATH = "/".join(DEFAULT_PATH[:DEFAULT_PATH.index("data")+1])
+except: DEFAULT_PATH = "/".join(DEFAULT_PATH) + "/data"
+
+print(DEFAULT_PATH)
+
+def get_total_data(data_type, prefix_path = DEFAULT_PATH, dropna = True):
     """
     Get all data of PAH, thienoacenes, cyano-PAH and nitro-PAH
     """
     data_list = [        
-            pd.read_csv(prefix_path + "raw_cyano_data.csv"),
-            pd.read_csv(prefix_path + "raw_nitro_data.csv"),
-            pd.read_csv(prefix_path + "raw_pah_data.csv")
+            pd.read_csv(prefix_path + "/raw_cyano_data.csv"),
+            pd.read_csv(prefix_path + "/raw_nitro_data.csv"),
+            pd.read_csv(prefix_path + "/raw_pah_data.csv")
         ]
     if data_type == "subst":
         total_data = pd.concat(data_list[:2])

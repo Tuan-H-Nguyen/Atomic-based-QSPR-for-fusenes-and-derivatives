@@ -9,7 +9,12 @@ and substituted PAH molecules.
 
 ## Data
 
-The data stored in .csv files can be found within the data folder.
+The data stored in 3 .csv files can be found within the data folder:
+- `raw_pah_data.csv`: datasets on every PAHs and thienoacenes used
+- `raw_cyano_data.csv`: datasets on every cyano-substituted PAHs used
+- `raw_nitro_data.csv`: datasets on every nitro-substituted PAHs used
+Additionally, `data_exam.py` can be run to print compositions of the original body of data, as well as re-sampled data
+(e.g. mixed datasets, PAH datasets, and substituted PAH datasets).
 
 ## Code
 

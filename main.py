@@ -66,6 +66,13 @@ parser.add_argument(
     """,
     type = bool, default = False)
 
+parser.add_argument(
+    "-plot_label", "--parity_plot_label",
+    help = """
+        parity plot label 
+    """,
+    type = str, default = "ABC")
+
 args = parser.parse_args()
 
 if args.kernel == "subtree" or args.kernel == "wla":
@@ -97,7 +104,8 @@ for i in range(args.N):
         return_model = True,
         parity_plot_path = "experiments\\single_run_result\\plot\\parity_plot_" \
             + args.data + "_" + args.kernel + "_" + args.model + ".jpeg"  
-            if args.parity_plot else None
+            if args.parity_plot else None,
+        parity_plot_label = args.parity_plot_label
         )
 
     all_rmsd.append(rmsd)
